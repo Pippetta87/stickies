@@ -1,0 +1,1851 @@
+\section{works in progress}
+
+\subsection{Boot process}
+
+\begin{itemize}
+\item (macbook32bit: 1,1).
+\verb=sudo gdisk /dev/sdb=
+UUID: \verb=sudo blkid=
+\verb=sudo pico /etc/fstab=: static fs info (UUID mount point 
+type:auto/vfat... option:rw/users/exec/umask=000 dump pass)
+mactel: bless .... boot.efi: boot to grub
+grub-install: work with mkfs.msdos, on hfsplus install only /EFI/debian/System/Library/CoreServices/boot.efi
+\verb=sudo grub-efi=/mnt/... --directory/target=i386-efi=
+
+\end{itemize}
+
+\subsection{Latex}
+
+\begin{itemize}
+    \item Beamer: partintoc-hyperlink
+    \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+    \makeatletter
+\AtBeginPart{%
+  \addtocontents{toc}{\protect\beamer@partintoc{\the\c@part}{\beamer@partnameshort}{\the\c@page}}%
+}
+%% number, shortname, page.
+\providecommand\beamer@partintoc[3]{%
+  \ifnum\c@tocdepth=-1\relax
+    % requesting onlyparts.
+    \makebox[6em]{Part #1:} \textcolor{green!30!blue}{\hyperlink{#2}{#2}}
+    \par
+  \fi
+}
+\define@key{beamertoc}{onlyparts}[]{%
+  \c@tocdepth=-1\relax
+}
+\makeatother%
+
+\newcommand{\nameofthepart}{}
+\newcommand{\nupart}[1]%
+    {   \part{#1}%
+        \renewcommand{\nameofthepart}{#1}%
+        \frame{\partpage \hypertarget{\nameofthepart}{}}%
+    }
+    \end{lstlisting}
+    \item (Beamer) workout with insertframenumber. \verb=\insertframenumber= is expanded at \verb=\listofkeywords= page.
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+\newcounter{cherrykey}%conta le keyword totali per auto ref
+\newcounter{cherrysublist}% conta le key prima di keywordlist
+\newcommand\headinginfo[1]{%
+  \addcontentsline{key-\thecherrysublist}{heading}{{#1}}%
+  \addtocontents{key-\thecherrysublist}{\vspace{5pt}}}
+%% expert approach to keywords
+ \makeatletter
+\newcommand\keyword[2][target-\thecherrykey]{%
+\addtocounter{cherrykey}{1}
+  \noindent%
+  {#2}%
+  \phantomsection% comment out if hyperref is not used
+  \linkdest{#1}
+\addcontentsline{key-\thecherrysublist}{subsubsection}{\textbullet\protect\hyperlink{#1}{#2}}
+}
+  \makeatother
+  
+\makeatletter
+\newcommand{\listofkeywordsbasic}{%
+\addtocounter{cherrysublist}{1}
+  \@starttocorig{key-\thecherrysublist}
+}
+\makeatother
+\newcommand\listkeywordsname{KEYWORDS}
+\newcommand\listofkeywords{%
+  \subsubsection{\listkeywordsname}\listofkeywordsbasic
+}
+\end{lstlisting}
+\end{itemize}
+\subsection{Octave}
+
+\begin{itemize}
+\item (Octave) Multi hist plot. How fill works? How work on two matrices instead of two vectors?
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+function [h,ys,xs] = complexhist (M)
+#(A,B)
+graphics_toolkit("gnuplot")
+#A=M(1,:)
+size(M)(2)
+hold on; 
+
+for i=1:5#size(M)(2)
+[y(:,i) x(:,i)]=hist(M(:,i),10);
+tt1y=size(y)
+tt2x=size(x)
+[ys(:,i) xs(:,i)]=stairs(y(:,i), x(:,i));
+tttxs=size(xs)
+tttys=size(ys)
+xsa(:,i)=[xs(1,i); xs(:,i); xs(end,i)];
+ysa(:,i)= [0; ys(:,i); 0];
+h(i)=fill(xsa(:,i),ysa(:,i),"red")
+set(h(i),'facealpha',0.5);
+endfor
+size(ysa)
+size(xsa)
+size(h)
+clf
+hold off;
+endfunction
+\end{lstlisting}
+
+\end{itemize}
+
+
+\section{Environment}
+
+\subsection{Octave}
+
+\subsection{Sage}
+
+\subsection{Debian installation}
+
+\begin{itemize}
+\item Boot fom grub console cloning iso installer to from harddisk to USB pen
+\begin{workout}[boot from grub console]
+grub: prefix for insmod (modules: linux, \verb=all_video=, loopback,
+console from debian insaller: dd, mount (insmod?? vfat mounting to /mnt)
+\end{workout}
+
+\end{itemize}
+
+\subsection{Debian initial configuration}
+
+\begin{itemize}
+\item git backup init (\keyword{using ssh keys})
+\begin{lstlisting}
+git init --separate-git-dir??\\
+git --git-dir=/home/user/backup-root/.git/ --work-tree=/ init\\
+git add remote origin url.git\\
+(add ssh keys on github: xclip -sel clip <~/.ssh/id_rsa.pub)\\
+git checkout origin/master -- path-to-file\\
+\end{lstlisting}
+\item apt install keychain: key manager for OpenSSH. It check for ssh-agent running and save sshagent envirnment variables to \verb=~/.keychain/\$\{HOSTNAME\}-sh=
+
+\end{itemize}
+
+\subsection{Debian}
+
+\begin{itemize}
+
+\item Build linux kernel
+
+Needed tools: kernel-package fakeroot/apt build-dep linux
+At times the Linux kernel and the toolchain versions might be out of sync, resulting in lots of strange build failures. In that case, it would be a good idea to use a Debian stable chroot to do the building.
+
+Getting the Linux git source: Clone Linus's version (HEAD)
+\begin{lstlisting}
+git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+\end{lstlisting}
+
+Build your Linux kernel
+
+Copy a valid configuration, for example, the configuration of the running Linux kernel/use currently loaded modules:
+
+\begin{lstlisting}
+cp /boot/config-$(uname -r) .config
+echo CONFIG_LOCALVERSION_AUTO=y >> .config
+\end{lstlisting}
+
+Configure the Linux kernel:
+
+(\verb=yes "" | make oldconfig=)\verb=make oldconfig=
+
+(''make localmodconfig'' Create a config based on current config and loaded modules (lsmod). Disables any module option that is not needed for the loadedmodules. (First, boot up a default distribution kernel and run \verb=/usr/bin/modprobed-db store= periodically, or every time you connect some new piece of hardware. Then, run \verb=sudo /usr/bin/modprobed-db recall=))
+
+Build the Linux kernel:
+
+\begin{lstlisting}
+# Detect the amount of CPU cores you have
+jobs=$(nproc --all)
+# Detect if the Linux kernel version needs fakeroot or not
+fakeroot=$(grep -q fakeroot scripts/package/Makefile || echo fakeroot)
+# Build Debian binary packages of the Linux kernel version
+$fakeroot make -j$jobs bindeb-pkg
+\end{lstlisting}
+
+Install the newly created Linux kernel:
+\begin{lstlisting}
+apt install ../linux-2.6.25-rc6_2.6.25-rc6-2_amd64.deb
+\end{lstlisting}
+
+Reboot under newly built Linux kernel.
+
+\item Systemd
+
+The most notable distribution using systemd is Fedora. Though it is used by many others. Additionally, with Debian having chosen to go with systemd over upstart, it will become the defacto upstart system for most distributions (ubuntu has already announced they will be dropping upstart for systemd).
+
+List services:
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+systemctl list-unit-files
+\end{lstlisting}
+
+Start service:
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+systemctl start {SERVICENAME}
+\end{lstlisting}
+
+Stop service:
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+systemctl stop {SERVICENAME}
+\end{lstlisting}
+
+Enable service:
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+systemctl enable {SERVICENAME}
+\end{lstlisting}
+
+Disable service:
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+systemctl disable {SERVICENAME}
+\end{lstlisting}
+
+\item Networking-The modern network configuration without GUI
+
+Sous systemd, le réseau peut aussi être configuré dans \verb=/etc/systemd/network/=. Voir : systemd-resolved(8), resolved.conf(5), et systemd-networkd(8).
+
+This allows the modern network configuration without GUI.
+
+  A DHCP client configuration can be set up by creating "/etc/systemd/network/dhcp.network". E.g.:
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+
+[Match]
+Name=en*
+
+[Network]
+DHCP=yes
+\end{lstlisting}
+
+A static network configuration can be set up by creating "/etc/systemd/network/static.network". E.g.:
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+
+[Match]
+Name=en*
+
+[Network]
+Address=192.168.0.15/24
+Gateway=192.168.0.1
+\end{lstlisting}
+
+\item Networking-NetworkManager
+
+\end{itemize}
+
+\subsection{e-facilities}
+
+\begin{itemize}
+\item Unipisa network configuration (\keyword{wpa2-enterprise}).
+
+802.1x su wireless
+Istruzioni autenticazione 802.1x
+    Network Name/SSID: eduroam, UniPisa, Teaching
+    Security Type: WPA2 in combinazione con  IEEE 802.1X (conosciuta come WPA2-Enterprise)
+    Encryption Type: AES
+    Authentication method: PEAP or EAP-TTLS
+    Authentication protocol: MSCHAP / Sub authentication method: EAP-MSCHAP V2 or PAP
+    
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+
+nmcli connection edit UniPisa
+
+===============================================================================
+                 Informations de profil de connexion (UniPisa)
+===============================================================================
+connection.id:                          UniPisa
+connection.uuid:                        bb976830-73fa-4ec2-99b7-0ef499516e42
+connection.stable-id:                   --
+connection.type:                        802-11-wireless
+connection.interface-name:              wlp2s0
+connection.autoconnect:                 oui
+connection.autoconnect-priority:        0
+connection.autoconnect-retries:         -1 (default)
+connection.auth-retries:                -1
+connection.timestamp:                   1524672353
+connection.read-only:                   non
+connection.permissions:                 --
+connection.zone:                        --
+connection.master:                      --
+connection.slave-type:                  --
+connection.autoconnect-slaves:          -1 (default)
+connection.secondaries:                 --
+connection.gateway-ping-timeout:        0
+connection.metered:                     inconnu
+connection.lldp:                        default
+-------------------------------------------------------------------------------
+802-1x.eap:                             peap
+802-1x.identity:                        f.rossi11
+802-1x.anonymous-identity:              --
+802-1x.pac-file:                        --
+802-1x.ca-cert:                         --
+802-1x.ca-cert-password:                <hidden>
+802-1x.ca-cert-password-flags:          0 (aucun)
+802-1x.ca-path:                         --
+802-1x.subject-match:                   --
+802-1x.altsubject-matches:              --
+802-1x.domain-suffix-match:             --
+802-1x.client-cert:                     --
+802-1x.client-cert-password:            <hidden>
+802-1x.client-cert-password-flags:      0 (aucun)
+802-1x.phase1-peapver:                  --
+802-1x.phase1-peaplabel:                --
+802-1x.phase1-fast-provisioning:        --
+802-1x.phase1-auth-flags:               0x0 (none)
+802-1x.phase2-auth:                     mschapv2
+802-1x.phase2-autheap:                  --
+802-1x.phase2-ca-cert:                  --
+802-1x.phase2-ca-cert-password:         <hidden>
+802-1x.phase2-ca-cert-password-flags:   0 (aucun)
+802-1x.phase2-ca-path:                  --
+802-1x.phase2-subject-match:            --
+802-1x.phase2-altsubject-matches:       --
+802-1x.phase2-domain-suffix-match:      --
+802-1x.phase2-client-cert:              --
+802-1x.phase2-client-cert-password:     <hidden>
+802-1x.phase2-client-cert-password-flags:0 (aucun)
+802-1x.password:                        <hidden>
+802-1x.password-flags:                  0 (aucun)
+802-1x.password-raw:                    <hidden>
+802-1x.password-raw-flags:              0 (aucun)
+802-1x.private-key:                     --
+802-1x.private-key-password:            <hidden>
+802-1x.private-key-password-flags:      0 (aucun)
+802-1x.phase2-private-key:              --
+802-1x.phase2-private-key-password:     <hidden>
+802-1x.phase2-private-key-password-flags:0 (aucun)
+802-1x.pin:                             <hidden>
+802-1x.pin-flags:                       0 (aucun)
+802-1x.system-ca-certs:                 non
+802-1x.auth-timeout:                    0
+-------------------------------------------------------------------------------
+802-11-wireless.ssid:                   UniPisa
+802-11-wireless.mode:                   infrastructure
+802-11-wireless.band:                   bg
+802-11-wireless.channel:                6
+802-11-wireless.bssid:                  --
+802-11-wireless.rate:                   0
+802-11-wireless.tx-power:               0
+802-11-wireless.mac-address:            --
+802-11-wireless.cloned-mac-address:     --
+802-11-wireless.generate-mac-address-mask:--
+802-11-wireless.mac-address-blacklist:  --
+802-11-wireless.mac-address-randomization:default
+802-11-wireless.mtu:                    auto
+802-11-wireless.seen-bssids:            00:FE:C8:65:F6:00
+802-11-wireless.hidden:                 non
+802-11-wireless.powersave:              0 (default)
+-------------------------------------------------------------------------------
+802-11-wireless-security.key-mgmt:      wpa-eap
+802-11-wireless-security.wep-tx-keyidx: 0
+802-11-wireless-security.auth-alg:      open
+802-11-wireless-security.proto:         --
+802-11-wireless-security.pairwise:      --
+802-11-wireless-security.group:         --
+802-11-wireless-security.pmf:           0 (default)
+802-11-wireless-security.leap-username: f.rossi11
+802-11-wireless-security.wep-key0:      <hidden>
+802-11-wireless-security.wep-key1:      <hidden>
+802-11-wireless-security.wep-key2:      <hidden>
+802-11-wireless-security.wep-key3:      <hidden>
+802-11-wireless-security.wep-key-flags: 0 (aucun)
+802-11-wireless-security.wep-key-type:  unknown
+802-11-wireless-security.psk:           <hidden>
+802-11-wireless-security.psk-flags:     0 (aucun)
+802-11-wireless-security.leap-password: <hidden>
+802-11-wireless-security.leap-password-flags:0 (aucun)
+802-11-wireless-security.wps-method:    0 (default)
+-------------------------------------------------------------------------------
+ipv4.method:                            auto
+ipv4.dns:                               --
+ipv4.dns-search:                        --
+ipv4.dns-options:                       ""
+ipv4.dns-priority:                      0
+ipv4.addresses:                         --
+ipv4.gateway:                           --
+ipv4.routes:                            --
+ipv4.route-metric:                      -1
+ipv4.route-table:                       0 (unspec)
+ipv4.ignore-auto-routes:                non
+ipv4.ignore-auto-dns:                   non
+ipv4.dhcp-client-id:                    --
+ipv4.dhcp-timeout:                      0 (default)
+ipv4.dhcp-send-hostname:                oui
+ipv4.dhcp-hostname:                     --
+ipv4.dhcp-fqdn:                         --
+ipv4.never-default:                     non
+ipv4.may-fail:                          oui
+ipv4.dad-timeout:                       -1 (default)
+-------------------------------------------------------------------------------
+ipv6.method:                            auto
+ipv6.dns:                               --
+ipv6.dns-search:                        --
+ipv6.dns-options:                       ""
+ipv6.dns-priority:                      0
+ipv6.addresses:                         --
+ipv6.gateway:                           --
+ipv6.routes:                            --
+ipv6.route-metric:                      -1
+ipv6.route-table:                       0 (unspec)
+ipv6.ignore-auto-routes:                non
+ipv6.ignore-auto-dns:                   non
+ipv6.never-default:                     non
+ipv6.may-fail:                          oui
+ipv6.ip6-privacy:                       -1 (inconnu)
+ipv6.addr-gen-mode:                     stable-privacy
+ipv6.dhcp-send-hostname:                oui
+ipv6.dhcp-hostname:                     --
+ipv6.token:                             --
+-------------------------------------------------------------------------------
+proxy.method:                           none
+proxy.browser-only:                     non
+proxy.pac-url:                          --
+proxy.pac-script:                       --
+\end{lstlisting}
+
+\keyword{nmcli}:
+\begin{verbatim}
+# nmcli con add type wifi ifname wlan0 con-name CONNECTION_NAME ssid SSID
+# nmcli con edit id CONNECTION_NAME
+nmcli> set ipv4.method auto
+nmcli> set 802-1x.eap peap
+nmcli> set 802-1x.phase2-auth mschapv2
+nmcli> set 802-1x.identity USERNAME
+nmcli> save
+nmcli> activate
+nmcli> set 802-1x.password PASSWORD
+nmcli> set 802-1x.anonymous-identity ANONYMOUS-IDENTITY
+nmcli> set wifi-sec.key-mgmt wpa-eap (wpa-enterprise) (??)
+\end{verbatim}
+
+\begin{verbatim}
+    To see list of saved connections, use (<SavedWiFiConn>)
+
+    nmcli c
+
+    To see list of available WiFi hotspots (<WiFiSSID>)
+
+    nmcli d wifi list
+
+    or:
+
+    sudo iwlist wlan0 scanning
+
+    To see list of interfaces (<WifiInterface>)
+
+    ifconfig -a
+
+Just change <WifiInterface>, <WiFiSSID>, <WiFiPassword> in the following commands to reflect your setup. If WiFi info already saved, easier way using <SavedWiFiConn> name of connection as it was saved in NetworkManager.
+Ubuntu 16.04
+
+##disconnect
+nmcli d disconnect <WifiInterface>
+
+##connect
+nmcli d connect <WifiInterface>
+
+Another way:
+
+##disconnect
+nmcli c down <SavedWiFiConn>
+
+##connect
+nmcli c up <SavedWiFiConn>
+
+Ubuntu 15.10 & previous
+
+##disconnect
+nmcli d disconnect iface <WifiInterface>
+
+##connect
+nmcli d wifi connect <WiFiSSID> password <WiFiPassword> iface <WifiInterface>
+
+Another way:
+
+##disconnect:
+nmcli c down id <SavedWiFiConn>
+
+##connect:
+nmcli c up id <SavedWiFiConn>
+\end{verbatim}
+
+\keyword{wpa-supplicant}:
+\begin{verbatim}
+change your /etc/network/interfaces to: Code:
+
+auto lo
+iface lo inet loopback
+
+auto wlan0
+iface wlan0 inet dhcp
+wireless-mode Managed
+wpa-ssid **censored**
+wpa-ap-scan 1
+wpa-proto RSN WPA
+wpa-pairwise CCMP TKIP
+wpa-group CCMP TKIP
+wpa-key-mgmt WPA-EAP
+wpa-eap PEAP
+wpa-identity **censored**
+wpa-password **censored**
+wpa-phase1 fast_provisioning=1
+wpa-pac-file /home/kyle/Downloads/chain2.cer
+
+With terminal: Code:
+
+sudo ifconfig wlan0 down
+sudo ifconfig wlan0 up
+sudo dhclient wlan0 -v
+\end{verbatim}
+\end{itemize}
+
+\section{\TeX ''environments''}
+
+\subsection{\LaTeX}
+
+\begin{itemize}
+
+\item \verb=\newcommand= optional parameter.
+
+\begin{lstlisting}
+\newcommand{\example}[2][YYY]{Mandatory arg: #2;
+                                 Optional arg: #1.}
+
+This defines \example to be a command with two arguments, 
+referred to as #1 and #2 in the {<definition>}--nothing new so far. 
+But by adding a second optional argument to this \newcommand 
+(the [YYY]) the first argument (#1) of the newly defined 
+command \example is made optional with its default value being YYY.
+
+Thus the usage of \example is either:
+
+   \example{BBB}
+which prints:
+Mandatory arg: BBB; Optional arg: YYY.
+or:
+   \example[XXX]{AAA}
+\end{lstlisting}
+
+\item \verb=\newcommandx= for multi opt-args
+
+\begin{lstlisting}
+\usepackage{xargs}
+\newcommandx{\foo}[3][1=1, 3=n]{...}
+\end{lstlisting}
+
+defines a command \verb=\foo= that has an optional first argument (default 1), a mandatory second argument, and an optional third argument (default n)
+
+\item \keyword{let vs def}.
+
+Thus \verb=\let\foo\bar= defines \verb=\foo= to have the value that \verb=\bar= had at the point of definition. On the other hand, \verb=\def\foo{\bar}= in effect defines \verb=\foo= to have the value that \verb=\bar= has at the point of use.
+
+Consider:
+
+\begin{verbatim}
+\def\bar{hello}
+\let\fooi\bar
+\def\fooii{\bar}
+\fooi +\fooii
+
+\def\bar{goodbye}
+\fooi +\fooii
+\end{verbatim}
+
+This produces
+
+\begin{verbatim}
+hello+hello
+hello+goodbye
+\end{verbatim}
+
+However it's also a subtle one, so it might be worth highlighting a few key points:
+
+When TeX encounters control sequences such as \verb=\fooi=, it evaluates them; if these are macros (that is, they have been defined by \verb=\def=, or \verb=\let= equal to something which was defined by \verb=\def=), then the result is that they will expand to other tokens, which TeX will then examine in turn, and so on, recursively, until what's left is either ‘primitive’ control sequences or letters (I'm simplifying a little bit).
+\verb=\fooi= expands directly to the characters hello (because \verb=\bar= initially did, and \verb=\fooi= was defined to have the same value).
+\verb=\fooii=, in contrast, expands to \verb=\bar=, which is then immediately reexamined and reexpanded. In the first case, \verb=\bar= expands to hello and in the second case to goodbye. The definition of \verb=\fooii= hasn't changed, but \verb=\bar= has been redefined in between.
+
+\item \keyword{newenvironment}:
+
+\lstset{language={TeX},breakatwhitespace=true, breaklines=true}
+
+\begin{lstlisting}
+\newenvironment{newenvironmentname}
+    {(before commands)
+    }
+    {(after commands)
+    }
+ 
+\end{lstlisting}
+
+\item Do \keyword{NOT compile} \LaTeX commands.\thechapter\thecherrychapter
+
+\lstset{language={TeX},breakatwhitespace=true, breaklines=true}
+
+\begin{lstlisting}
+\begin{verbatim}
+\it This is how you write in italic
+\end{verbatim}
+\end{lstlisting}
+
+P.S. If you need to put them in-line, you can put them in the \verb=\verb=== environment:
+\begin{lstlisting}
+\verb=\it This is how you write in italic=
+\end{lstlisting}
+
+
+\end{itemize}
+
+\subsection{TiKz(PGFplots) world}
+
+\begin{itemize}
+\item node shape: circle, rectangle, coordinate.
+\begin{lstlisting}
+\node[shape=coordinate][]options](name)at(coordinate){}
+\end{lstlisting}
+
+\item  node positioning anchor
+    \begin{lstlisting}
+\draw
+  let
+    \p1=($(a.north)!0.5!(b.south)$),
+    \p2=(current bounding box.west),
+    \p3=(current bounding box.east)
+  in
+    (\x2,\y1) -- (\x3, \y1);
+\end{lstlisting}
+
+\item tikz-axis: extra tick
+https://tex.stackexchange.com/questions/269386/how-to-add-an-extra-tick-without-adding-a-new-line-to-the-grid
+
+\item tikz-addplot: const
+    \begin{lstlisting}
+\addplot+[const plot, no marks, thick] coordinates {(0,0) (1,0.5) (2,0.75) (3,0.8) (4,1) (4.49,1)} node[above,pos=.57,black] {$F_x$}
+\end{lstlisting}
+
+\end{itemize}
+
+\subsection{\LaTeX{} Script: Word in a string manipulation}
+
+\begin{lstlisting}
+
+\def\testwords#1{%
+    \begingroup
+    \edef\@tempa{#1\space}%
+    \expandafter\endgroup
+    \expandafter\readwords\@tempa\relax
+}
+\def\readwords#1 #2\relax{%
+      \doword{#1}%  #1 = substr, #2 = rest of string
+      \begingroup
+      \ifx\relax#2\relax  % is #2 empty?
+         \def\next{\endgroup\endtestwords}% your own end-macro if required
+      \else
+         \def\next{\endgroup\readwords#2\relax}%
+      \fi
+      \next
+}
+\def\doword#1{(#1)}
+\def\endtestwords{}
+
+
+\testwords{Now good enough}% Gives (Now)(good)(enough)
+\testwords{Now good}% Gives (Now)(good)
+\end{lstlisting}
+
+\subsection{LUA}
+
+\begingroup
+\nocite{*}
+\let\clearpage\relax
+\printbibliography[heading=\bibheader,keyword={LUA},title={\textcolor{antiquefuchsia}{LUA refs}}]
+
+\endgroup
+
+\begin{itemize}
+
+\item Another way to link chunks is with the dofile function, which immediately executes a file. For instance, you may have a file lib1.lua:
+
+\lstset{language={[5.0]Lua},breakatwhitespace=true, breaklines=true}
+
+\begin{lstlisting}
+
+    -- file 'lib1.lua'
+    
+    function norm (x, y)
+      local n2 = x^2 + y^2
+      return math.sqrt(n2)
+    end
+    
+    function twice (x)
+      return 2*x
+    end
+Then, in interactive mode, you can type
+    > dofile("lib1.lua")   -- load your library
+    > n = norm(3.4, 1.0)
+    > print(twice(n))      --> 7.0880180586677
+
+\end{lstlisting}
+
+\item Coroutine Basics.
+
+Lua offers all its coroutine functions packed in the coroutine table. The create function creates new coroutines. It has a single argument, a function with the code that the coroutine will run. It returns a value of type thread, which represents the new coroutine. Quite often, the argument to create is an anonymous function, like here:
+
+\begin{lstlisting}
+    co = coroutine.create(function ()
+           print("hi")
+         end)
+    
+    print(co)   --> thread: 0x8071d98
+\end{lstlisting}
+
+A coroutine can be in one of three different states: suspended, running, and dead. When we create a coroutine, it starts in the suspended state. That means that a coroutine does not run its body automatically when we create it. We can check the state of a coroutine with the status function:
+\begin{lstlisting}
+    print(coroutine.status(co))   --> suspended
+\end{lstlisting}
+
+The function coroutine.resume (re)starts the execution of a coroutine, changing its state from suspended to running:
+\begin{lstlisting}
+    coroutine.resume(co)   --> hi
+\end{lstlisting}
+
+In this example, the coroutine body simply prints "hi" and terminates, leaving the coroutine in the dead state, from which it cannot return:
+\begin{lstlisting}
+    print(coroutine.status(co))   --> dead
+\end{lstlisting}
+
+Until now, coroutines look like nothing more than a complicated way to call functions. The real power of coroutines stems from the yield function, which allows a running coroutine to suspend its execution so that it can be resumed later. Let us see a simple example:
+\begin{lstlisting}
+    co = coroutine.create(function ()
+           for i=1,10 do
+             print("co", i)
+             coroutine.yield()
+           end
+         end)
+\end{lstlisting}
+
+Now, when we resume this coroutine, it starts its execution and runs until the first yield:
+\begin{lstlisting}
+    coroutine.resume(co)    --> co   1
+\end{lstlisting}
+
+If we check its status, we can see that the coroutine is suspended and therefore can be resumed again:
+\begin{lstlisting}
+    print(coroutine.status(co))   --> suspended
+\end{lstlisting}
+
+From the coroutine's point of view, all activity that happens while it is suspended is happening inside its call to yield. When we resume the coroutine, this call to yield finally returns and the coroutine continues its execution until the next yield or until its end:
+\begin{lstlisting}
+    coroutine.resume(co)    --> co   2
+    coroutine.resume(co)    --> co   3
+    ...
+    coroutine.resume(co)    --> co   10
+    coroutine.resume(co)    -- prints nothing
+\end{lstlisting}
+
+During the last call to resume, the coroutine body finished the loop and then returned, so the coroutine is dead now. If we try to resume it again, resume returns false plus an error message:
+\begin{lstlisting}
+    print(coroutine.resume(co))
+    --> false   cannot resume dead coroutine
+\end{lstlisting}
+
+Note that resume runs in protected mode. Therefore, if there is any error inside a coroutine, Lua will not show the error message, but instead will return it to the resume call.
+A useful facility in Lua is that a pair resume-yield can exchange data between them. The first resume, which has no corresponding yield waiting for it, passes its extra arguments as arguments to the coroutine main function:
+\begin{lstlisting}
+    co = coroutine.create(function (a,b,c)
+           print("co", a,b,c)
+         end)
+    coroutine.resume(co, 1, 2, 3)    --> co  1  2  3
+\end{lstlisting}
+
+A call to resume returns, after the true that signals no errors, any arguments passed to the corresponding yield:
+\begin{lstlisting}
+    co = coroutine.create(function (a,b)
+           coroutine.yield(a + b, a - b)
+         end)
+    print(coroutine.resume(co, 20, 10))  --> true  30  10
+\end{lstlisting}
+
+Symmetrically, yield returns any extra arguments passed to the corresponding resume:
+\begin{lstlisting}
+    co = coroutine.create (function ()
+           print("co", coroutine.yield())
+         end)
+    coroutine.resume(co)
+    coroutine.resume(co, 4, 5)     --> co  4  5
+\end{lstlisting}
+
+Finally, when a coroutine ends, any values returned by its main function go to the corresponding resume:
+\begin{lstlisting}
+    co = coroutine.create(function ()
+           return 6, 7
+         end)
+    print(coroutine.resume(co))   --> true  6  7
+\end{lstlisting}
+
+\item 3.1 – Lexical Conventions
+
+Lua is a free-form language. It ignores spaces (including new lines) and comments between lexical elements (tokens), except as delimiters between names and keywords.
+
+Names (also called identifiers) in Lua can be any string of letters, digits, and underscores, not beginning with a digit and not being a reserved word. Identifiers are used to name variables, table fields, and labels.
+
+The following keywords are reserved and cannot be used as names:
+\begin{lstlisting}
+     and       break     do        else      elseif    end
+     false     for       function  goto      if        in
+     local     nil       not       or        repeat    return
+     then      true      until     while
+\end{lstlisting}
+
+Lua is a case-sensitive language: and is a reserved word, but And and AND are two different, valid names. As a convention, programs should avoid creating names that start with an underscore followed by one or more uppercase letters (such as \verb=_VERSION=).
+
+The following strings denote other tokens:
+\begin{lstlisting}
+     +     -     *     /     %     ^     #
+     &     ~     |     <<    >>    //
+     ==    ~=    <=    >=    <     >     =
+     (     )     {     }     [     ]     ::
+     ;     :     ,     .     ..    ...
+\end{lstlisting}
+
+\begin{verbatim}
+A short literal string can be delimited by matching single or double quotes, and can contain the following C-like escape sequences: '\a' (bell), '\b' (backspace), '\f' (form feed), '\n' (newline), '\r' (carriage return), '\t' (horizontal tab), '\v' (vertical tab), '\\' (backslash), '\"' (quotation mark [double quote]), and '\'' (apostrophe [single quote]). A backslash followed by a line break results in a newline in the string. The escape sequence '\z' skips the following span of white-space characters, including line breaks; it is particularly useful to break and indent a long literal string into multiple lines without adding the newlines and spaces into the string contents. A short literal string cannot contain unescaped line breaks nor escapes not forming a valid escape sequence.
+
+
+We can specify any byte in a short literal string by its numeric value (including embedded zeros). This can be done with the escape sequence \xXX, where XX is a sequence of exactly two hexadecimal digits, or with the escape sequence \ddd, where ddd is a sequence of up to three decimal digits. (Note that if a decimal escape sequence is to be followed by a digit, it must be expressed using exactly three digits.)
+
+The UTF-8 encoding of a Unicode character can be inserted in a literal string with the escape sequence \verb=\u{XXX}= (note the mandatory enclosing brackets), where XXX is a sequence of one or more hexadecimal digits representing the character code point.
+
+Literal strings can also be defined using a long format enclosed by long brackets. We define an opening long bracket of level n as an opening square bracket followed by n equal signs followed by another opening square bracket. So, an opening long bracket of level 0 is written as [[, an opening long bracket of level 1 is written as [=[, and so on. A closing long bracket is defined similarly; for instance, a closing long bracket of level 4 is written as ]====]. A long literal starts with an opening long bracket of any level and ends at the first closing long bracket of the same level. It can contain any text except a closing bracket of the same level. Literals in this bracketed form can run for several lines, do not interpret any escape sequences, and ignore long brackets of any other level. Any kind of end-of-line sequence (carriage return, newline, carriage return followed by newline, or newline followed by carriage return) is converted to a simple newline.
+
+For convenience, when the opening long bracket is immediately followed by a newline, the newline is not included in the string. As an example, in a system using ASCII (in which 'a' is coded as 97, newline is coded as 10, and '1' is coded as 49), the five literal strings below denote the same string:
+\end{verbatim}
+\begin{lstlisting}
+     a = 'alo\n123"'
+     a = "alo\n123\""
+     a = '\97lo\10\04923"'
+     a = [[alo
+     123"]]
+     a = [==[
+     alo
+     123"]==]
+\end{lstlisting}
+
+Any byte in a literal string not explicitly affected by the previous rules represents itself. However, Lua opens files for parsing in text mode, and the system file functions may have problems with some control characters. So, it is safer to represent non-text data as a quoted literal with explicit escape sequences for the non-text characters.
+
+A numeric constant (or numeral) can be written with an optional fractional part and an optional decimal exponent, marked by a letter 'e' or 'E'. Lua also accepts hexadecimal constants, which start with 0x or 0X. Hexadecimal constants also accept an optional fractional part plus an optional binary exponent, marked by a letter 'p' or 'P'. A numeric constant with a radix point or an exponent denotes a float; otherwise, if its value fits in an integer, it denotes an integer. Examples of valid integer constants are
+\begin{lstlisting}
+     3   345   0xff   0xBEBADA
+\end{lstlisting}
+Examples of valid float constants are
+\begin{lstlisting}
+     3.0     3.1416     314.16e-2     0.31416E1     34e1
+     0x0.1E  0xA23p-4   0X1.921FB54442D18P+1
+\end{lstlisting}
+
+A comment starts with a double hyphen (--) anywhere outside a string. If the text immediately after -- is not an opening long bracket, the comment is a short comment, which runs until the end of the line. Otherwise, it is a long comment, which runs until the corresponding closing long bracket. Long comments are frequently used to disable code temporarily.
+
+\item  Variables
+
+Variables are places that store values. There are three kinds of variables in Lua: global variables, local variables, and table fields.
+
+A single name can denote a global variable or a local variable (or a function's formal parameter, which is a particular kind of local variable):
+\begin{lstlisting}
+	var ::= Name
+\end{lstlisting}
+Name denotes identifiers.
+
+Any variable name is assumed to be global unless explicitly declared as a local. Local variables are lexically scoped: local variables can be freely accessed by functions defined inside their scope.
+
+Before the first assignment to a variable, its value is nil.
+
+Square brackets are used to index a table:
+\begin{lstlisting}
+	var ::= prefixexp '[' exp ']'
+\end{lstlisting}
+
+The meaning of accesses to table fields can be changed via metatables. An access to an indexed variable $t[i]$ is equivalent to a call \verb=gettable_event(t,i)=. 
+
+The syntax var.Name is just syntactic sugar for var["Name"]:
+\begin{lstlisting}
+	var ::= prefixexp '.' Name
+\end{lstlisting}
+An access to a global variable x is equivalent to \verb=_ENV.x=. Due to the way that chunks are compiled,\verb= _ENV= is never a global name.
+
+\item Statements
+
+Lua supports an almost conventional set of statements, similar to those in Pascal or C. This set includes assignments, control structures, function calls, and variable declarations.
+
+\item Blocks
+
+A block is a list of statements, which are executed sequentially:
+\begin{lstlisting}
+	block ::= {stat}
+\end{lstlisting}
+Lua has empty statements that allow you to separate statements with semicolons, start a block with a semicolon or write two semicolons in sequence:
+\begin{lstlisting}
+	stat ::= ';'
+\end{lstlisting}
+Function calls and assignments can start with an open parenthesis. This possibility leads to an ambiguity in Lua's grammar. Consider the following fragment:
+\begin{lstlisting}
+     a = b + c
+     (print or io.write)('done')
+\end{lstlisting}
+
+The grammar could see it in two ways:
+\begin{lstlisting}
+     a = b + c(print or io.write)('done')
+     
+     a = b + c; (print or io.write)('done')
+\end{lstlisting}
+The current parser always sees such constructions in the first way, interpreting the open parenthesis as the start of the arguments to a call. To avoid this ambiguity, it is a good practice to always precede with a semicolon statements that start with a parenthesis:
+\begin{lstlisting}
+     ;(print or io.write)('done')
+\end{lstlisting}
+
+A block can be explicitly delimited to produce a single statement:
+\begin{lstlisting}
+	stat ::= do block end
+\end{lstlisting}
+Explicit blocks are useful to control the scope of variable declarations. Explicit blocks are also sometimes used to add a return statement in the middle of another block.
+
+\item Chunks
+
+The unit of compilation of Lua is called a chunk. Syntactically, a chunk is simply a block:
+\begin{lstlisting}
+	chunk ::= block
+\end{lstlisting}
+
+Lua handles a chunk as the body of an anonymous function with a variable number of arguments. As such, chunks can define local variables, receive arguments, and return values. Moreover, such anonymous function is compiled as in the scope of an external local variable called \verb=_ENV=. The resulting function always has \verb=_ENV= as its only upvalue, even if it does not use that variable.
+
+A chunk can be stored in a file or in a string inside the host program. To execute a chunk, Lua first loads it, precompiling the chunk's code into instructions for a virtual machine, and then Lua executes the compiled code with an interpreter for the virtual machine.
+
+Chunks can also be precompiled into binary form; see program luac and function string.dump for details. Programs in source and compiled forms are interchangeable; Lua automatically detects the file type and acts accordingly (see load).
+
+\item Assignment.
+
+Lua allows multiple assignments. Therefore, the syntax for assignment defines a list of variables on the left side and a list of expressions on the right side. The elements in both lists are separated by commas:
+\begin{lstlisting}
+	stat ::= varlist '=' explist
+	varlist ::= var {',' var}
+	explist ::= exp {',' exp}
+\end{lstlisting}
+
+Before the assignment, the list of values is adjusted to the length of the list of variables. If there are more values than needed, the excess values are thrown away. If there are fewer values than needed, the list is extended with as many nil's as needed. If the list of expressions ends with a function call, then all values returned by that call enter the list of values, before the adjustment (except when the call is enclosed in parentheses).
+
+The assignment statement first evaluates all its expressions and only then the assignments are performed. Thus the code
+\begin{lstlisting}
+     i = 3
+     i, a[i] = i+1, 20
+\end{lstlisting}
+sets $a[3]$ to 20, without affecting a[4] because the i in a[i] is evaluated (to 3) before it is assigned 4. Similarly, the line
+\begin{lstlisting}
+     x, y = y, x
+\end{lstlisting}
+exchanges the values of x and y, and
+\begin{lstlisting}
+     x, y, z = y, z, x
+\end{lstlisting}
+cyclically permutes the values of x, y, and z.
+
+The meaning of assignments to global variables and table fields can be changed via metatables. An assignment to an indexed variable t[i] = val is equivalent to \verb=settable_event(t,i,val)=.
+
+An assignment to a global name x = val is equivalent to the assignment \verb=_ENV.x = val=.
+
+\item Control Structures
+
+The control structures if, while, and repeat have the usual meaning and familiar syntax:
+\begin{lstlisting}
+	stat ::= while exp do block end
+	stat ::= repeat block until exp
+	stat ::= if exp then block {elseif exp then block} [else block] end
+\end{lstlisting}
+Lua also has a for statement, in two flavors.
+
+The condition expression of a control structure can return any value. Both false and nil are considered false. All values different from nil and false are considered true (in particular, the number 0 and the empty string are also true).
+
+In the repeat–until loop, the inner block does not end at the until keyword, but only after the condition. So, the condition can refer to local variables declared inside the loop block.
+
+The goto statement transfers the program control to a label. For syntactical reasons, labels in Lua are considered statements too:
+\begin{lstlisting}
+	stat ::= goto Name
+	stat ::= label
+	label ::= '::' Name '::'
+\end{lstlisting}
+
+A label is visible in the entire block where it is defined, except inside nested blocks where a label with the same name is defined and inside nested functions. A goto may jump to any visible label as long as it does not enter into the scope of a local variable.
+
+Labels and empty statements are called void statements, as they perform no actions.
+
+The break statement terminates the execution of a while, repeat, or for loop, skipping to the next statement after the loop:
+\begin{lstlisting}
+	stat ::= break
+\end{lstlisting}
+A break ends the innermost enclosing loop.
+
+The return statement is used to return values from a function or a chunk (which is an anonymous function). Functions can return more than one value, so the syntax for the return statement is
+\begin{lstlisting}
+	stat ::= return [explist] [';']
+\end{lstlisting}
+The return statement can only be written as the last statement of a block. If it is really necessary to return in the middle of a block, then an explicit inner block can be used, as in the idiom do return end, because now return is the last statement in its (inner) block.
+
+\item For Statement
+
+The for statement has two forms: one numerical and one generic.
+
+The numerical for loop repeats a block of code while a control variable runs through an arithmetic progression. It has the following syntax:
+\begin{lstlisting}
+	stat ::= for Name '=' exp ',' exp [',' exp] do block end
+\end{lstlisting}
+The block is repeated for name starting at the value of the first exp, until it passes the second exp by steps of the third exp. More precisely, a for statement like
+\begin{lstlisting}
+     for v = e1, e2, e3 do block end
+\end{lstlisting}
+is equivalent to the code:
+\begin{lstlisting}
+     do
+       local var, limit, step = tonumber(e1), tonumber(e2), tonumber(e3)
+       if not (var and limit and step) then error() end
+       var = var - step
+       while true do
+         var = var + step
+         if (step >= 0 and var > limit) or (step < 0 and var < limit) then
+           break
+         end
+         local v = var
+         block
+       end
+     end
+\begin{lstlisting}
+
+Note the following:
+
+    All three control expressions are evaluated only once, before the loop starts. They must all result in numbers.
+    var, limit, and step are invisible variables. The names shown here are for explanatory purposes only.
+    If the third expression (the step) is absent, then a step of 1 is used.
+    You can use break and goto to exit a for loop.
+    The loop variable v is local to the loop body. If you need its value after the loop, assign it to another variable before exiting the loop.
+
+The generic for statement works over functions, called iterators. On each iteration, the iterator function is called to produce a new value, stopping when this new value is nil. The generic for loop has the following syntax:
+\begin{lstlisting}
+	stat ::= for namelist in explist do block end
+	namelist ::= Name {',' Name}
+\end{lstlisting}
+
+A for statement like
+\begin{lstlisting}
+     for \verb=var_1=, ..., \verb=var_n= in explist do block end
+\end{lstlisting}
+is equivalent to the code:
+\begin{lstlisting}
+     do
+       local f, s, var = explist
+       while true do
+         local \verb=var_1, ..., var_n = f(s, var)=
+         if verb=var_1= == nil then break end
+         var = \verb=var_1=
+         block
+       end
+     end
+\end{lstlisting}
+
+Note the following:
+
+    explist is evaluated only once. Its results are an iterator function, a state, and an initial value for the first iterator variable.
+    f, s, and var are invisible variables. The names are here for explanatory purposes only.
+    You can use break to exit a for loop.
+    The loop variables \verb=var_i= are local to the loop; you cannot use their values after the for ends. If you need these values, then assign them to other variables before breaking or exiting the loop.
+
+\item Function Calls as Statements.
+
+To allow possible side-effects, function calls can be executed as statements:
+\begin{lstlisting}
+	stat ::= functioncall
+\end{lstlisting}
+In this case, all returned values are thrown away.
+
+\item Local Declarations.
+
+Local variables can be declared anywhere inside a block. The declaration can include an initial assignment:
+\begin{lstlisting}
+	stat ::= local namelist ['=' explist]
+\end{lstlisting}
+If present, an initial assignment has the same semantics of a multiple assignment. Otherwise, all variables are initialized with nil.
+
+A chunk is also a block, and so local variables can be declared in a chunk outside any explicit block.
+
+
+\item Expressions.
+
+The basic expressions in Lua are the following:
+\begin{lstlisting}
+	exp ::= prefixexp
+	exp ::= nil | false | true
+	exp ::= Numeral
+	exp ::= LiteralString
+	exp ::= functiondef
+	exp ::= tableconstructor
+	exp ::= '...'
+	exp ::= exp binop exp
+	exp ::= unop exp
+	prefixexp ::= var | functioncall | '(' exp ')'
+\end{lstlisting}
+
+Both function calls and vararg expressions can result in multiple values. If a function call is used as a statement (see §3.3.6), then its return list is adjusted to zero elements, thus discarding all returned values. If an expression is used as the last (or the only) element of a list of expressions, then no adjustment is made (unless the expression is enclosed in parentheses). In all other contexts, Lua adjusts the result list to one element, either discarding all values except the first one or adding a single nil if there are no values.
+
+Here are some examples:
+\begin{lstlisting}
+     f()                -- adjusted to 0 results
+     g(f(), x)          -- f() is adjusted to 1 result
+     g(x, f())          -- g gets x plus all results from f()
+     a,b,c = f(), x     -- f() is adjusted to 1 result (c gets nil)
+     a,b = ...          -- a gets the first vararg parameter, b gets
+                        -- the second (both a and b can get nil if there
+                        -- is no corresponding vararg parameter)
+     
+     a,b,c = x, f()     -- f() is adjusted to 2 results
+     a,b,c = f()        -- f() is adjusted to 3 results
+     return f()         -- returns all results from f()
+     return ...         -- returns all received vararg parameters
+     return x,y,f()     -- returns x, y, and all results from f()
+     {f()}              -- creates a list with all results from f()
+     {...}              -- creates a list with all vararg parameters
+     {f(), nil}         -- f() is adjusted to 1 result
+\end{lstlisting}
+
+Any expression enclosed in parentheses always results in only one value. Thus, (f(x,y,z)) is always a single value, even if f returns several values. (The value of (f(x,y,z)) is the first value returned by f or nil if f does not return any values.) 
+
+We seldom use all these facilities in the same coroutine, but all of them have their uses.
+
+For those that already know something about coroutines, it is important to clarify some concepts before we go on. Lua offers what I call asymmetric coroutines. That means that it has a function to suspend the execution of a coroutine and a different function to resume a suspended coroutine. Some other languages offer symmetric coroutines, where there is only one function to transfer control from any coroutine to another.
+
+Some people call asymmetric coroutine semi-coroutines (because they are not symmetrical, they are not really co). However, other people use the same term semi-coroutine to denote a restricted implementation of coroutines, where a coroutine can only suspend its execution when it is not inside any auxiliary function, that is, when it has no pending calls in its control stack. In other words, only the main body of such semi-coroutines can yield. A generator in Python is an example of this meaning of semi-coroutines.
+
+Unlike the difference between symmetric and asymmetric coroutines, the difference between coroutines and generators (as presented in Python) is a deep one; generators are simply not powerful enough to implement several interesting constructions that we can write with true coroutines. Lua offers true, asymmetric coroutines. Those that prefer symmetric coroutines can implement them on top of the asymmetric facilities of Lua. It is an easy task. (Basically, each transfer does a yield followed by a resume.)
+
+
+
+\end{itemize}
+
+\section{multimedia tools}
+
+\subsection{ffmpeg}
+
+\begin{itemize}
+
+\item Help
+
+\begin{bash}
+ffmpeg -f lavfi -i nullsrc -c:v libx264 -preset help -f mp4 -
+ffmpeg -codecs
+\end{bash}
+
+\item  Designate one or more input streams as a source for the output file.
+
+\verb=-map [-]input_file_id[:stream_specifier][?][,sync_file_id[:stream_specifier]] | [linklabel] (output)=.
+
+Each input stream is identified by the input file index \verb=input_file_id= and the input stream \verb=index input_stream_id=
+ within the input file. Both indices start at 0. If specified, \verb=sync_file_id:stream_specifier=
+           sets which input stream is used as a presentation sync reference.
+
+           The first `'-map'' option on the command line specifies the source for output stream 0, the
+           second "-map" option specifies the source for output stream 1, etc.
+
+           A "-" character before the stream identifier creates a "negative" mapping.  It disables
+           matching streams from already created mappings.
+
+           A trailing "?" after the stream index will allow the map to be optional: if the map matches no
+           streams the map will be ignored instead of failing. Note the map will still fail if an invalid
+           input file index is used; such as if the map refers to a non-existant input.
+          
+          \item ffmpeg supports combining video and audio without re-encoding:
+           
+\begin{bash}
+ffmpeg -i input.mkv -i input.m4a -c copy -map 0:0 -map 1:0 -shortest output.mkv
+
+sudo ffmpeg -i adwd.mp4 -bsf:v h264_mp4toannexb -c copy -map 0 -flags -global_header  -f segment -segment_time 10 -segment_list adwd.m3u8 -segment_format mpegts adwd\%d.ts
+
+ffmpeg -i input.avi -vcodec libx264 -pass 1 -b 368k -passlogfile out.log -fpre presets/libx264-medium_firstpass.ffpreset -y out.mp4
+
+ffmpeg -i input.avi -vcodec libx264 -pass 2 -b 368k -passlogfile out.log -fpre presets/libx264-medium.ffpreset -y out.mp4
+\end{bash}
+
+\lstinline[columns=fixed]{-map 0:0} means input file 0, stream 0. \lstinline[columns=fixed]{-c} copy copies video and audio codecs. \lstinline[columns=fixed]{-shortest} makes the combined file as long as the shorter file.
+
+\item FFmpeg and H.264 Encoding
+
+Constant Rate Factor (CRF)
+
+1. Choose a CRF value
+
+The range of the quantizer scale is 0-51: where 0 is lossless, 23 is default, and 51 is worst possible. A lower value is a higher quality and a subjectively sane range is 18-28. Consider 18 to be visually lossless or nearly so: it should look the same or nearly the same as the input but it isn't technically lossless.
+
+The range is exponential, so increasing the CRF value +6 is roughly half the bitrate while -6 is roughly twice the bitrate. General usage is to choose the highest CRF value that still provides an acceptable quality. If the output looks good, then try a higher value and if it looks bad then choose a lower value.
+
+Note: The CRF quantizer scale mentioned on this page only applies to 8-bit x264 (10-bit x264 quantizer scale is 0-63). You can see what you are using by referring to the ffmpeg console output during encoding (yuv420p or similar for 8-bit, and yuv420p10le or similar for 10-bit). 8-bit is more common among distributors.
+
+2. Choose a preset
+
+A preset is a collection of options that will provide a certain encoding speed to compression ratio. A slower preset will provide better compression (compression is quality per filesize). This means that, for example, if you target a certain file size or constant bit rate, you will achieve better quality with a slower preset. Similarly, for constant quality encoding, you will simply save bitrate by choosing a slower preset.
+
+The general guideline is to use the slowest preset that you have patience for. Current presets in descending order of speed are: ultrafast,superfast, veryfast, faster, fast, medium, slow, slower, veryslow, placebo. The default preset is medium. Ignore placebo as it is not useful (see FAQ). You can see a list of current presets with -preset help (see example below), and what settings they apply with x264 --fullhelp.
+
+You can optionally use -tune to change settings based upon the specifics of your input. Current tunings include: film, animation, grain, stillimage, psnr, ssim, fastdecode, zerolatency. For example, if your input is animation then use the animation tuning, or if you want to preserve grain then use the grain tuning. If you are unsure of what to use or your input does not match any of tunings then omit the -tune option. You can see a list of current tunings with -tune help, and what settings they apply with x264 --fullhelp.
+
+Another optional setting is -profile:v which will limit the output to a specific H.264 profile. This can generally be omitted unless the target device only supports a certain profile (see Compatibility). Current profiles include: baseline, main, high, high10, high422, high444. Note that usage of -profile:v is incompatible with lossless encoding.
+
+To list all possible internal preset and tunes:
+
+\begin{bash}
+ffmpeg -f lavfi -i nullsrc -c:v libx264 -preset help -f mp4 -
+\end{bash}
+
+
+3. Use your settings
+
+Once you've chosen your settings apply them for the rest of your videos if you are encoding more. This will ensure that they will all have similar quality.
+CRF Example
+
+\begin{bash}
+ffmpeg -i input -c:v libx264 -preset slow -crf 22 -c:a copy output.mkv
+\end{bash}
+
+%Note that in this example the audio stream of the input file is simply ​stream copied over to the output and not re-encoded.
+
+Two-Pass
+
+This method is generally used if you are targeting a specific output file size and output quality from frame to frame is of less importance. This is best explained with an example. Your video is 10 minutes (600 seconds) long and an output of 200 MiB is desired. Since bitrate = file size / duration:
+
+\begin{bash}
+(200 MiB * 8192 [converts MiB to kBit]) / 600 seconds = ~2730 kBit/s total bitrate
+2730 - 128 kBit/s (desired audio bitrate) = 2602 kBit/s video bitrate
+\end{bash}
+
+You can also forgo the bitrate calculation if you already know what final (average) bitrate you need.
+Two-Pass Example
+
+\begin{bash}
+ffmpeg -y -i input -c:v libx264 -preset medium -b:v 2600k -pass 1 -c:a aac -b:a 128k -f mp4 /dev/null && \
+ffmpeg -i input -c:v libx264 -preset medium -b:v 2600k -pass 2 -c:a aac -b:a 128k output.mp4
+\end{bash}
+
+As with CRF, choose the slowest preset you can tolerate.
+
+In pass 1 specify a output format with -f that matches the output format in pass 2. Also in pass 1, specify the audio codec used in pass 2; in many cases -an in pass 1 will not work.
+
+
+Lossless H.264
+
+ You can use -crf 0 to encode a lossless output. Two useful presets for this are ultrafast or veryslow since either a fast encoding speed or best compression are usually the most important factors.
+Lossless Example (fastest encoding)
+
+\begin{bash}
+ffmpeg -i input -c:v libx264 -preset ultrafast -crf 0 output.mkv
+\end{bash}
+
+Lossless Example (best compression)
+
+\begin{bash}
+ffmpeg -i input -c:v libx264 -preset veryslow -crf 0 output.mkv
+\end{bash}
+
+Note that lossless output files will likely be huge, and most non-FFmpeg based players will not be able to decode lossless, so if compatibility or file size issues you should not use lossless. If you're looking for an output that is roughly "visually lossless" but not technically lossless use a -crf value of around 17 or 18 (you'll have to experiment to see which value is acceptable for you). It will likely be indistinguishable from the source and not result in a huge, possibly incompatible file like true lossless mode. 
+
+ You can also use -crf or -b:v with a maximum bit rate by specifying both -maxrate and -bufsize:
+
+\begin{bash}
+ffmpeg -i input -c:v libx264 -crf 23 -maxrate 1M -bufsize 2M output.mp4
+\end{bash}
+
+This will effectively "target" -crf 23, but if the output were to exceed 1 MBit/s, the encoder would increase the CRF to prevent bitrate spikes. However, be aware that libx264 does not strictly control the maximum bit rate as you specified (the maximum bit rate may be well over 1M for the above file). To reach a perfect maximum bit rate, use two-pass.
+
+In another example, instead of using constant quality (CRF) as a target, the average bitrate is set. A two-pass approach is preferred here:
+
+\begin{bash}
+ffmpeg -i input -c:v libx264 -b:v 1M -maxrate 1M -bufsize 2M -pass 1 -f mp4 /dev/null
+ffmpeg -i input -c:v libx264 -b:v 1M -maxrate 1M -bufsize 2M -pass 2 output.mp4
+\end{bash}
+
+Low Latency
+
+libx264 offers a -tune zerolatency option. See the StreamingGuide.
+Compatibility - If you want your videos to have highest compatibility with older devices:
+
+\begin{bash}
+-profile:v baseline -level 3.0
+\end{bash}
+
+This disables some advanced features but provides for better compatibility. Typically you may not need this setting (and therefore avoid using -profile:v and -level), but if you do use this setting it may increase the bit rate compared to what is needed to achieve the same quality in higher profiles. 
+
+\item Subtitles.
+
+Input:
+
+Thus, the subtitle stream may not be detected and listed by:
+
+\begin{bash}
+ ffmpeg -i <input>
+\end{bash}
+
+which only searches a short distance into the input file.
+
+To coerce ffmpeg to search further for the subtitle stream, use options:
+
+\begin{bash}
+ -probesize <bytes> -analyzeduration <microseconds>
+\end{bash}
+
+which will cause ffmpeg to search until the first of those limits is reached. Note that both of these options must appear on the command line before the specification of the input via -i. For example:
+
+\begin{bash}
+ ffmpeg -probesize 50M -analyzeduration 100M -i vts.vob
+\end{bash}
+
+will search through vts.vob for all streams until it has read 50 MB of data or 100 seconds of video, whichever comes first.
+
+Outputting Subtitles
+
+Subtitles may be included in an encoded video file as a parallel stream, or may be rendered permanently (aka "burned") into the video itself.
+Encoding Subtitles to an Output Stream
+
+\begin{bash}
+ffmpeg -i "INPUT" [-sub_charenc [character encoding]] -i "SUBTITLE_INPUT" 
+        -vcodec [codec] -acodec [codec] -scodec [codec] [...] "OUTPUT"
+\end{bash}
+
+Set Subtitles Character Encoding Conversion
+
+Set input text subtitles character encoding conversion
+
+\begin{bash}
+-sub_charenc [character encoding]
+\end{bash}
+
+If you want to import and encode a subtitle plaintext file (Windows/ANSI) which contains special characters of some languages (like French, German, Italian, Spanish and so on) this option is needed for subtitle encoding conversion from Windows/ANSI to UTF-8.
+
+[character encoding] parameter examples:
+CP1252, CP874, CP936, CP1250, ... , CP1258,
+LATIN1 , LATIN2 , ... , LATIN8, LATIN-9, LATIN10,
+ISO-8859-1, ISO-8859-2, ... , ISO-8859-16,
+UTF-8, UTF-16, UTF-32
+UNICODEBIG, UNICODELITTLE
+
+
+Notes:
+
+\verb=[-sub_charenc [character encoding]]= is not mandatory, but whenever used, it must be placed right before the reference of the subtitle to be processed with that encoding.
+If you try to import ANSI subtitle files with a newer version of FFmpeg without using of "\verb=-sub_charenc=" you can get an error message like:
+Invalid UTF-8 in decoded subtitles text; maybe missing \verb=-sub_charenc= option
+Then you have to use option "\verb=-sub_charenc=" to define the right coding format or code page of subtitle file.
+Set Subtitle Codec
+
+Force to set subtitle codec ('copy' to copy stream)
+
+\begin{bash}
+-scodec [subtitle codec]
+\end{bash}
+
+Not every subtitle codec can be used for every video container format!
+
+[subtitle codec] parameter examples:
+for MKV containers: copy, ass, srt, ssa
+for MP4 containers: copy, \verb=mov_text=
+for MOV containers: copy, \verb=mov_text=
+
+Note:
+Many Philips Blu-Ray Players, Samsung Smart TV's and other standalone players can only read "SRT" subtitle streams in "MKV" files.
+Set Subtitle Language
+
+Set subtitle language using the ISO 639 language code (3 letters)
+
+\begin{bash}
+-metadata:s:s:[stream number] language=[language code]
+
+-metadata:s:s:0 ... that means to set the metadata for ... Stream:Subtitle:Number of stream, starting with 0
+\end{bash}
+
+Rendering Subtitles into the Video.
+
+Subtitles may be rendered permanently into the video stream by specifying a complex filter on the command line:
+
+\begin{bash}
+ -filter_complex "[0:v][0:s]overlay"
+\end{bash}
+
+This can be interpreted as "take all video streams from the first listed input, then all subtitle streams from the first listed input, and overlay the latter on the former to produce a single video stream that replaces all consumed streams". The new stream will be mapped by the encoder as any video input stream normally would.
+
+\item recover corrupted video:
+
+\begin{bash}
+ffmpeg -err_detect ignore_err -i video.mkv -c copy video_fixed.mkv
+\end{bash}
+
+\end{itemize}
+
+\section{Common unix: CLI - Command Line}
+
+\subsection{sed}
+
+\begin{itemize}
+
+\item There are two levels of interpretation here: the shell, and sed.
+
+In the shell, everything between single quotes is interpreted literally, except for single quotes themselves. You can effectively have a single quotes between single quotes by writing \lstinline[columns=fixed]{'\''} (close single quote, one literal single quote, open single quote).
+
+Sed uses basic regular expressions. In a BRE, the characters \verb=$.*[\]^= need to be quoted by preceding them by a backslash, except inside character sets \verb([…])=. Letters, digits and \verb=(){}+?|= must not be quoted (you can get away with quoting some of these in some implementations). The sequences \verb=\(, \), \n=, and in some implementations \verb=\{, \}, \+, \?, \|= and other backslash+alphanumerics have special meanings. You can get away with not quoting \verb=$^]= in some positions in some implementations.
+
+Furthermore, you need a backslash before \verb=/= if it is to appear in the regex. You can choose an alternate character as the delimiter by writing e.g. \verb=s~/dir~/= replacement \verb=~= or \verb=\~/dir~p;= you'll need a backslash before the delimiter if you want to include it in the BRE. If you choose a character that has a special meaning in a BRE and you want to include it literally, you'll need three backslashes; I do not recommend this.
+
+In a nutshell, for sed \verb='s/…/…/'=:
+
+    Write the regex between single quotes.
+    Use \verb='\''= to end up with a single quote in the regex.
+    Put a backslash before \verb=$.*/[\]^}=and only those characters.
+
+In the replacement text:
+
+  \lstinline[columns=fixed]{&} and \lstinline[columns=fixed]{\} need to be quoted, as do the delimiter (usually \lstinline[columns=fixed]{/}) and newlines.
+    \lstinline[columns=fixed]{\} followed by a digit has a special meaning. \lstinline[columns=fixed]{\} followed by a letter has a special meaning (special characters) in some implementations, and \lstinline[columns=fixed]{\} followed by some other character means \lstinline[columns=fixed]{\c} or \lstinline[columns=fixed]{c} depending on the implementation.
+    With single quotes around the argument \verb=(sed 's/…/…/')=, use \verb='\''= to put a single quote in the replacement text.
+
+If the regex or replacement text comes from a shell variable, remember that
+
+    the regex is a BRE, not a literal string;
+    in the regex, a newline needs to be expressed as \verb=\n;=
+    in the replacement text, \verb=&, \= and newlines need to be quoted;
+    the delimiter needs to be quoted.
+    Use double quotes for interpolation: \verb=sed -e "s/$BRE/$REPL/"=.
+
+
+\end{itemize}
+
+\subsection{GIT}
+
+\begin{itemize}
+
+\item Affichage d'anciens commits: \verb=git checkout=.
+
+La commande \verb=git checkout= a trois fonctions distinctes : faire un checkout des fichiers, des commits et des branches. Dans ce module, nous nous intéresserons uniquement aux deux premières configurations.
+
+La vérification d'un commit fait correspondre le répertoire de travail complet à ce commit. Cela permet d'afficher un ancien état de votre projet sans modifier son état actuel d'aucune façon. La vérification d'un fichier vous permet de voir une ancienne version d'un fichier spécifique, sans toucher au reste de votre répertoire de travail.
+Utilisation
+
+\begin{verbatim}
+git checkout master
+\end{verbatim}
+
+Revenez à la branche master. Les branches sont couvertes de manière approfondie par le module suivant, mais pour l'instant, vous pouvez juste considérer cela comme un moyen de revenir à l'état « actuel » du projet.
+
+
+git checkout <commit> <fichier>
+
+Faire un checkout d'une ancienne version de fichier. Le <file> situé dans le répertoire de travail est converti en une copie exacte du <commit> et il est ajouté dans la zone de staging.
+
+\begin{verbatim}
+git checkout <commit>
+\end{verbatim}
+
+Mettre à jour tous les fichiers du répertoire de travail pour correspondre avec le commit spécifié. Vous pouvez utiliser une empreinte de commit ou un tag en tant qu'argument <commit>. Vous passerez ensuite au statut « HEAD détaché ».
+Discussion
+
+L'idée sous-jacente de tout système de contrôle de version est de stocker des copies sécurisées d'un projet afin que vous n'ayez plus à vous préoccuper de briser votre base de code. Une fois que vous avez créé un historique de projet, git checkout permet de « charger » les instantanés sauvegardés sur l'ordinateur de développement.
+
+L'extraction d'un ancien commit est une opération qui s'effectue en lecture seule. Lorsque vous consultez une ancienne révision, il est impossible d'endommager votre dépôt. L'état « actuel » de votre projet demeure inchangé dans la branche master (voir le module Branches pour plus de détails). Dans le cours normal du développement, le fichier HEAD pointe généralement vers la branche master ou une autre branche locale, mais lorsque vous extrayez un ancien commit, HEAD ne pointe plus vers une branche. Il pointe directement vers un commit. C'est ce que l'on appelle l'état « HEAD détachée », qui peut être illustré comme suit :
+
+Git Tutorial: Checking out a previous commit
+
+D'un autre côté, l'extraction d'un ancien fichier affecte l'état actuel de votre dépôt. Vous pouvez faire un nouveau commit de l'ancienne version dans un nouvel instantané comme vous le feriez pour tout autre fichier. Utiliser git checkout permet donc de revenir à une ancienne version d'un fichier.
+
+Git Training: Checking out a previous version of a file
+Exemple
+Affichage d'une ancienne révision
+
+Cet exemple suppose que vous avez commencé à développer une expérience un peu folle, mais que vous hésitez encore à la conserver. Pour vous aider à prendre une décision, vous souhaitez examiner l'état du projet avant le début de votre expérience. Tout d'abord, vous devez rechercher l'ID de la révision que vous souhaitez afficher.
+
+\begin{verbatim}
+git log --oneline
+\end{verbatim}
+
+Supposons que votre historique de projet ressemble à ceci :
+
+\begin{verbatim}
+b7119f2 Continue doing crazy things
+872fa7e Try something crazy
+a1e8fb5 Make some important changes to hello.py
+435b61d Create hello.py
+9773e52 Initial import
+\end{verbatim}
+
+Vous pouvez utiliser git checkout pour afficher le commit ''Make some import changes to hello.py'' comme suit :
+
+\begin{verbatim}
+git checkout a1e8fb5
+\end{verbatim}
+
+Ainsi, le statut de votre répertoire de travail correspond à celui du commit a1e8fb5. Vous pouvez visualiser les fichiers, compiler le projet, effectuer des tests et même modifier des fichiers sans craindre de compromettre l'état actuel du projet. Rien de ce que vous ferez ici ne sera enregistré dans votre dépôt. Pour poursuivre le développement, vous devez revenir à l'\'etat '' actuel '' de votre projet :
+
+\begin{verbatim}
+git checkout master
+\end{verbatim}
+
+Cela suppose que vous développiez sur la branche master par défaut, ce qui est abordé en détail dans le module Branches.
+
+Une fois que vous êtes revenu dans la branche master, vous pouvez utiliser git revert ou git reset pour annuler les changements indésirables.
+Check-out d'un fichier
+
+Si vous êtes seulement intéressé par un fichier, vous pouvez utiliser git checkout pour fetcher une ancienne version de celui-ci. Par exemple, si vous souhaitez seulement voir le fichier hello.py de l'ancien commit, vous pouvez utiliser la commande suivante :
+
+\begin{verbatim}
+git checkout a1e8fb5 hello.py
+\end{verbatim}
+
+Gardez à l'esprit que contrairement au checkout d'un commit, cette commande impacte l'état actuel de votre projet. L'ancienne révision de fichier s'affichera comme un « Changement à commiter », ce qui vous permettra de revenir à l'ancienne version du fichier. Si vous décidez de ne pas conserver l'ancienne version, vous pouvez faire un checkout de la version la plus récente avec :
+
+\begin{verbatim}
+git checkout HEAD hello.py
+\end{verbatim}
+
+\item Working in a detached state is not to be expected, unless you deliberately want to be doing this, which I doubt is the case for you. Instead of checking out commit $\#5$, you should have either reverted the master branch to that commit, or do a git rebase in interactive mode where you can rehash the commits as you want.
+
+\item If you have changed files you don't want to lose, you can push them. I have committed them in the detached mode and after that you can move to a temporary branch to integrate later in master.
+
+\begin{verbatim}
+git commit -m "....."
+git branch my-temporary-work
+git checkout master
+git merge my-temporary-work
+\end{verbatim}
+
+\item commit history
+
+\begin{verbatim}
+git log --since=2.weeks
+\end{verbatim}
+
+In fact, you can do \verb=-<n>=, where n is any integer to show the last n commits. In reality, you’re unlikely to use that often, because Git by default pipes all output through a pager so you see only one page of log output at a time. The \verb=oneline= option prints each commit on a single line, which is useful if you’re looking at a lot of commits. In addition, the short, full, and fuller options show the output in roughly the same format but with less or more information, respectively.
+
+\item Previous commit can be accessed with \verb=HEAD^=, I think that you are looking for something like:
+
+\begin{verbatim}
+git diff HEAD^ HEAD
+\end{verbatim}
+
+If you want to know the diff between head and any commit you can use:
+
+\begin{verbatim}
+git diff commit_id HEAD
+\end{verbatim}
+
+The following will also work:
+
+\begin{verbatim}
+git show
+\end{verbatim}
+
+And this will launch your visual diff tool (if configured):
+
+\begin{verbatim}
+git difftool HEAD^ HEAD
+\end{verbatim}
+
+Note: As of Git 1.8.5, \verb=@= is an alias for \verb=HEAD=, so you can use:
+
+\begin{verbatim}
+git diff @~..@
+\end{verbatim}
+
+\item \verb=upstream=.
+
+\verb=git rev-list --count --left-right "@{upstream}"...HEAD=: will print currently cached value behind-ahead of currently working branches relative to currently tracking remote branch for local branch.
+
+If I fork a repo from github the .git/config reads
+\begin{verbatim}
+[remote "origin"]
+       fetch = +refs/heads/*:refs/remotes/origin/*
+       url = git@github.com:myusername/reponame.git
+   [remote "upstream"]
+       fetch = +refs/heads/*:refs/remotes/upstream/*
+       url = git@github.com:authorname/reponame.git
+\end{verbatim}
+
+\verb=@{upstream}= is the branch on the remote which is tracking given branch on local repo.
+
+\item rebase.
+
+\begin{verbatim}
+git rebase [-i | --interactive] [<options>] [--exec <cmd>] [--onto <newbase>][<upstream> [<branch>]]
+git rebase [-i | --interactive] [<options>] [--exec <cmd>] [--onto <newbase>]--root [<branch>]
+git rebase --continue | --skip | --abort | --quit | --edit-todo | --show-current-patch
+\end{verbatim}
+
+\verb=<branch>= determina \verb=git checkout <branch>=
+
+All changes in local commit no present in \verb=<upstream>= are save to temp area;
+
+So in temp area are stored the commit listed by commands
+\begin{verbatim}
+git log <upstream>..HEAD
+git log 'fork_point'..HEAD (--fork-point)
+git log HEAD (--root)
+\end{verbatim}
+
+The current branch is resetted to \verb=<upstream>=( \verb=<newbase>= if option --onto) as
+\begin{verbatim}
+git reset --hard <upstream>
+\end{verbatim}
+
+The commits in temp area are applied one by one.
+
+\item Bisect (kernel Regression).
+
+(Req apt pkg: git gitk)
+Separate the wheat from the chaff. In this step, we will mark the versions good or bad.
+Start the git-bisect process:\verb=git bisect start=.
+Mark the ''good'' version, for example \verb=git bisect good v2.6.25-rc6=.
+Mark the ''bad'' version, for example \verb=git bisect bad v2.6.25-rc7=.
+At this point, this command should answer you something like that :
+
+Bisecting: 182 revisions left to test after this
+\begin{lstlisting}
+[2c7871982cf27caaddbaeb7e2121ce1374b520ff] Merge git://git.kernel.org/pub/scm/linux/kernel/git/lethal/sh-2.6.25
+\end{lstlisting}
+The interesting part is the number (in our case, 182) which is the number of Linux kernel revisions that lay between your good and your bad.
+
+These commands will then choose a new commit to be configured, built and tested. Repeat the procedure until git bisect decides one particular commit is at fault. Once the commit has been found you can inspect it to see why it caused the regression and or file a bug about it against the Debian Linux kernel package.
+
+\end{itemize}
+
+\subsection{Partitioning}
+
+\begin{itemize}
+
+\item DGND3700 V1 Partition Format Drive
+
+Step 1) stop and unmount
+
+(ignore errors - it politely first, then hard kills everything that could access the USB drive)
+
+\begin{verbatim}
+ACTION=removeall /etc/automount.sh
+
+~ # ACTION=removeall /etc/automount.sh
+killall: smbd: no process killed
+killall: nmbd: no process killed
+killall: smbd: no process killed
+killall: nmbd: no process killed
+rm: can't remove '/tmp/avahi/services/smb.service': No such file or directory
+killall: statd: no process killed
+killall: portmap: no process killed
+killall: idmapd: no process killed
+killall: transmission-daemon: no process killed
+killall: transmission-daemon: no process killed
+rm: can't remove '/tmp/avahi/services/transmission.service': No such file or directory
+killall: minidlnad: no process killed
+killall: automatic: no process killed
+killall: automatic: no process killed
+\end{verbatim}
+
+Step 2) check drive not mounted
+
+There shouldn't be anything mentioning \verb=/dev/sda= now!
+
+\begin{verbatim}
+~ # mount 
+rootfs on / type rootfs (rw)
+/dev/root on / type squashfs (ro)
+proc on /proc type proc (rw)
+sysfs on /sys type sysfs (rw)
+tmpfs on /tmp type tmpfs (rw)
+tmpfs on /media type tmpfs (rw)
+tmpfs on /dev type tmpfs (rw)
+none on /proc/bus/usb type usbfs (rw)
+/dev/mtdblock18 on /tmp/mnt/storage type jffs2 (rw)
+\end{verbatim}
+
+Step 3) wipe any existing partition \verb=/ boot= sector
+
+\begin{verbatim}
+zero out first 100Mb
+\end{verbatim}
+
+\begin{verbatim}
+dd if=/dev/zero of=/dev/sda bs=1M count=100
+
+~ # dd if=/dev/zero of=/dev/sda bs=1M count=100
+100+0 records in
+100+0 records out
+104857600 bytes (100.0MB) copied, 4.289913 seconds, 23.3MB/s
+\end{verbatim}
+
+Step 4) partition drive
+
+This is a run through of what you press.
+
+\begin{verbatim}
+fdisk -u -H 255 -S 63 /dev/sda
+	n <enter>
+	p <enter>
+	1 <enter>
+	2048 <enter>
+	<enter>
+	w <enter>
+\end{verbatim}
+
+\begin{verbatim}
+~ # fdisk -u -H 255 -S 63 /dev/sda
+\end{verbatim}
+
+Device contains neither a valid DOS partition table, nor Sun, SGI, OSF or GPT disklabel
+Building a new DOS disklabel. Changes will remain in memory only,
+until you decide to write them. After that the previous content
+won't be recoverable.
+
+
+The number of cylinders for this disk is set to 60801.
+There is nothing wrong with that, but this is larger than 1024,
+and could in certain setups cause problems with:
+1) software that runs at boot time (e.g., old versions of LILO)
+2) booting and partitioning software from other OSs
+   (e.g., DOS FDISK, OS/2 FDISK)
+   
+\begin{verbatim}
+
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 1
+First sector (63-976773167, default 63): 2048
+Last sector or +size or +sizeM or +sizeK (2048-976773167, default 976773167): Using default value 976773167
+
+Command (m for help): w
+The partition table has been altered.
+Calling ioctl() to re-read partition table
+
+\end{verbatim}
+
+Step 6) Check it all looks right
+
+Should see one device, starting at 2048 (or 63), your ending sector will depending on your drives size. e.g. \verb=976773167 / 512 = ~ 500gb=
+
+\begin{verbatim}
+~ # fdisk -lu /dev/sda
+
+Disk /dev/sda: 500.1 GB, 500107862016 bytes
+255 heads, 63 sectors/track, 60801 cylinders, total 976773168 sectors
+Units = sectors of 1 * 512 = 512 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sda1            2048   976773167   488385560  83 Linux
+\end{verbatim}
+
+Step 7) Format drive
+
+This is using tuned settings (reduced wasted space), this takes $< 1$ minute on this $500Gb$ drive.
+
+\begin{verbatim}
+mke2fs -t ext3 -i 524288 -I 128 -m 0 -L "DriveLabel" /dev/sda1
+
+~ # mke2fs -t ext3 -i 524288 -I 128 -m 0 -L "my500Gbdrive" /dev/sda1
+mke2fs 1.42.9 (28-Dec-2013)
+Filesystem label=my500Gbdrive
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=0 blocks
+954112 inodes, 122096390 blocks
+0 blocks (0.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=0
+3727 block groups
+32768 blocks per group, 32768 fragments per group
+256 inodes per group
+Superblock backups stored on blocks: 
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208, 
+	4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968, 
+	102400000
+
+Allocating group tables: done                            
+Writing inode tables: done                            
+Creating journal (32768 blocks): done
+Writing superblocks and filesystem accounting information: done   
+\end{verbatim}
+
+After fiddling around for a while I would suggest using a (-i) value of 6291456, this gave about 120'000 inodes on a 500gb drive which seems plenty.
+
+\begin{verbatim}
+mke2fs -t ext3 -i 6291456 -I 128 -m 0 -L "DriveLabel" /dev/sda1
+\end{verbatim}
+
+Formatting ext4
+
+    Ext4 is experimental at this kernel release, there are quite a few additional patches added however, but still suggest you use ext3!
+
+To format as ext4 with above example, disabling the 5 options needed;
+
+\begin{verbatim}
+mke2fs -t ext4 -i 524288 -I 128 -m 0 -L "my500Gbdrive" -O ^extent,^flex_bg,^huge_file,^uninit_bg,^dir_nlink  /dev/sda1
+\end{verbatim}
+
+Excess inodes without tuning
+
+I originally created my 320Gb drive with default settings and ended up with *alot* more than is needed, see below
+
+\begin{verbatim}
+~ # df -i
+Filesystem              Inodes      Used Available Use% Mounted on
+/dev/root                 1172      1172         0 100% /
+tmpfs                    15629       619     15010   4% /tmp
+tmpfs                    15629         2     15627   0% /media
+tmpfs                    15629       141     15488   1% /dev
+/dev/mtdblock18              0         0         0   0% /tmp/mnt/storage
+/dev/sda1             19537920       525  19537395   0% /media/WD320Gb
+\end{verbatim}
+
+It is using only 525 (drive almost full) with almost 20 million unused!
+
+You can easily change bytes-per-inode (-i) to several million assuming you don't have hundred of thousands of small files on it!
+Step 8) create transmissionbt folder
+
+\begin{verbatim}
+~ # mkdir /tmp/a
+~ # mount -t ext3 /dev/sda1 /tmp/a
+~ # mkdir -p /tmp/a/transmissionbt/Downloads
+~ # chown 1000:1000 /tmp/a/transmissionbt/Downloads
+~ # chmod 2775 /tmp/a/transmissionbt/Downloads
+~ # ls -la /tmp/a
+drwxr-xr-x    4 root     root          4096 Mar 14 19:25 .
+drwxrwxrwt   13 root     root           880 Mar 14 19:23 ..
+drwx------    2 root     root         16384 Mar 14 19:07 lost+found
+drwxr-xr-x    2 root     root          4096 Mar 14 19:25 transmissionbt
+~ # reboot
+\end{verbatim}
+
+    Note setting setgid bit along with TBT umask (002) (rw-rw-r--) will mean if the drive is removed and plugged into a pc you should have read/write to files on it as group (user id 1000) has access to everything in Downloads.
+    Note when it reboots it will auto mount as /media/<you drive label>/ and if transmission is set to start on bootup, it should now start.
+
+\begin{verbatim}
+~ # mount
+<SNIP>
+/dev/mtdblock18 on /tmp/mnt/storage type jffs2 (rw)
+/dev/sda1 on /media/my500Gbdrive type ext3 (rw,noatime,data=ordered)
+rpc_pipfs on /tmp/var/lib/nfs/rpc_pipefs type rpc_pipefs (rw)
+nfsd on /proc/fs/nfsd type nfsd (rw)
+\end{verbatim}
+
+\end{itemize}
