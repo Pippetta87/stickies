@@ -1,0 +1,15 @@
+\ProvidesPackage{functions}
+
+\newcommand{\PartialToc}{
+\vspace*{1pc}\hrule\vspace*{0.5pc}% toc at beginning chapter
+\startcontents[chapters]\vbox{\Large 
+\hypertarget{outline\thechapter}{\noindent Outline Cap. \thechapter}}
+\printcontents[chapters]{}{1}{\setcounter{tocdepth}{3}}\vspace*{0.5pc}\hrule
+
+
+\lfoot{\begingroup
+\hypersetup{allcolors=blue}
+\hyperlink{outline\thechapter}{Toc.\thechapter} Pg: \thepage (\thepart)Sec.\thesection,\hyperlink{toc}{Main Toc}\endgroup
+}
+
+}

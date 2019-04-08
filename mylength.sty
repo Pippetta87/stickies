@@ -1,0 +1,21 @@
+\ProvidesPackage{mylength}
+
+\makeatletter
+\g@addto@macro\normalsize{%
+\setlength{\parskip}{1pt}
+\setlength{\parsep}{1pt}
+\setlength{\headsep}{0pt}
+\setlength{\topskip}{1pt} %%which one of these 3 mess up page numbers??
+%\setlength{\topmargin}{0pt}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+\setlength\parindent{3pt}
+\setlength\abovedisplayskip{1pt}
+\setlength\belowdisplayskip{1pt}
+\setlength{\abovedisplayshortskip}{1pt}
+\setlength{\belowdisplayshortskip}{1pt}
+\setlength{\mathindent}{0cm}
+\setlist[itemize]{leftmargin=0cm,itemindent=.1cm,labelwidth=\itemindent,labelsep=0cm,align=left}
+\setlist[enumerate]{leftmargin=0cm,itemindent=.1cm,labelwidth=\itemindent,labelsep=0cm,align=left}
+}
+\makeatother

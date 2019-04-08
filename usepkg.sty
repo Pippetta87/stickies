@@ -1,0 +1,103 @@
+\ProvidesPackage{usepkg}
+
+\usepackage{blindtext}
+
+\usepackage[italian,english]{babel}
+
+\usepackage{amsmath,amssymb} 
+\usepackage{textcomp,gensymb}
+\usepackage[useregional]{datetime2}
+
+\usepackage{pxfonts}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%%%biblatex package and options and moods
+\usepackage{mybiblatex}
+
+\usepackage{xpatch}
+
+\xpatchcmd{\chapter}{%
+  \thispagestyle{chapter}}{%
+    \thispagestyle{mystyle}%
+  }{%
+}{}
+
+\makepagestyle{mystyle}
+
+\makeatletter
+\makeevenfoot{mystyle}{
+\begingroup
+\hypersetup{allcolors=blue}
+Toc:(\hyperlink{outline\thepart}{\thepart})-\hyperlink{outline\thechapter}{\thechapter} Pg: \thepage (\thepart)ch.\thechapter-Sec.\thesection,\hyperlink{toc}{Main Toc}\endgroup
+}{}{}
+\makeoddfoot{mystyle}{
+\begingroup
+\hypersetup{allcolors=blue}
+Toc:(\hyperlink{outline\thepart}{\thepart})-\hyperlink{outline\thechapter}{\thechapter} Pg: \thepage (\thepart)ch.\thechapter-Sec.\thesection,\hyperlink{toc}{Main Toc}\endgroup
+}{}{}
+
+%\makeevenhead{mainmatterstyle}{}{}{}
+%\makeoddhead{mainmatterstyle}{}{\@title}{}
+\makeatother
+
+%\usepackage{braket}
+%\usepackage{booktabs} %% better tabs
+%\usepackage{mdwlist}
+%\usepackage[font=normal,skip=0pt]{caption}
+%\usepackage{subcaption}
+
+\usepackage{datatool}
+
+\usepackage{calc}
+\usepackage{xassoccnt}
+\usepackage{nameref}%vedi current label name
+
+%\usepackage{tikz}
+%\usepackage{tkz-euclide}
+%\usepackage{filecontents}
+%\usepackage{tikz-er2}
+
+%\usetikzlibrary{
+%arrows,
+%calc,
+%fit,
+%fpu,
+%intersections,
+%positioning,
+%decorations.pathreplacing,shapes.geometric,backgrounds,
+%positioning-plus,node-families,
+%shadows
+%}
+
+%\usepackage{pgfplots}
+%\usepackage{fp}
+
+\usepackage{csquotes}
+%http://tex.stackexchange.com/questions/39285/whats-the-advantage-of-using-csquotes-over-using-an-editors-auto-replacement-f
+%%%%%
+
+\usepackage[normalem]{ulem} % either use this (simple) or
+\usepackage{hepnames}
+%http://www.terminally-incoherent.com/blog/2007/09/19/latex-squeezing-the-vertical-white-space/
+
+\usepackage{enumitem}
+
+%\usepackage{subfiles}
+
+\usepackage{siunitx}%% SI unitx
+\sisetup{%              SI setup
+    range-phrase = {\text{ -- }},
+    list-separator = {\text{, }},
+    list-final-separator = {\text{, e }},
+    list-pair-separator = {\text{ e }},
+}%
+%\usepackage{tensor}
+\usepackage{mathtools}
+
+\usepackage{eurosym}
+
+\usepackage{listings}
+\lstnewenvironment{bash}%BASH
+{\lstset{numbers=left,language=bash,keywordstyle={\color{blue}},breakatwhitespace=true, breaklines=true}}
+{}
