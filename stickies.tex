@@ -1406,6 +1406,45 @@ Ctrl+L: clear
 Ctrl+S/Q: Pause/Resume output to screen
 \end{lstlisting}
 \item \keyword{Move cli cursor}:
+\begin{lstlisting}
+Ctrl+A: At line begin
+Ctrl+E: At line end
+Ctrl+Left/Right Arrow: move cursor back/forward word at time
+\end{lstlisting}
+\item \keyword{Search in bash history}
+\begin{lstlisting}
+Ctrl+R/S: reverse/forward search
+Ctrl+G: quit search
+\end{lstlisting}
+\item \keyword{Delete chars}
+\begin{lstlisting}
+Ctrl+D: remove cursor char
+Ctrl+K: remove cursor-end
+Ctrl+X: remove cursor-beginning
+\end{lstlisting}
+\item \keyword{Transpose text in cli}:
+\begin{lstlisting}
+Ctrl+T: Transpose chars under-before cursor
+Esc then T: transpose words before cursor
+Esc then U/L: cursor-end upper/lower case
+Esc then C: letter under cursor upper case
+\end{lstlisting}
+\item \keyword{cli shortcut for linux processes}
+\begin{lstlisting}
+Ctrl+Z: Suspend foreground process (SIGSTP); revert with
+fg process_name/%bg_process_number
+Ctrl+C:Interrupt foreground process (SIGINT)
+\end{lstlisting}
+\item \keywprd{Bash Bang}
+\begin{lstlisting}
+!!: exec last
+!top: exec most recent top-starting
+!top:p: print what is
+!$: exec last word of previous command
+!$:p: print what is
+!*: print last word of previous command
+!*:p: display what substitute
+\end{lstlisting}
 \end{itemize}
 
 \subsection{sed}
