@@ -41,6 +41,13 @@ Toc:(\hyperlink{outline\thepart}{\thepart})-\hyperlink{outline\thechapter}{\thec
 %\makeoddhead{mainmatterstyle}{}{\@title}{}
 \makeatother
 
+\let\footruleskip\undefined
+\usepackage{fancyhdr}% http://ctan.org/pkg/fancyhdr
+%...
+
+\pagestyle{fancy}
+\fancyhf{}
+
 %\usepackage{braket}
 %\usepackage{booktabs} %% better tabs
 %\usepackage{mdwlist}

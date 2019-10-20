@@ -1,0 +1,112 @@
+\ProvidesPackage{localF}
+    
+\makeatletter%%% global (??) renewcommand
+\def\gnewcommand{\g@star@or@long\new@command}
+\def\grenewcommand{\g@star@or@long\renew@command}
+\def\g@star@or@long#1{% 
+  \@ifstar{\let\l@ngrel@x\global#1}{\def\l@ngrel@x{\long\global}#1}}
+\makeatother
+
+\newcommand{\bibheader}{bibchap}
+
+\makeatletter%% vedi nameref
+\newcommand*{\currentname}{\@currentlabelname}
+\makeatother
+
+\newcommand{\listworkoutname}{List of Workout}
+\newlistof{woc%counter
+}{wol%extension
+}{\listworkoutname}
+\newcommand\addwocontent[1]{%
+\addcontentsline{wol}{chapter}%
+{#1}
+}
+\newcounter{woc}
+\def\thewoc{(\arabic{woc})}
+\newenvironment{workout}[1][ ]%%%% workout
+{\refstepcounter{woc}\addwocontent{#1}%
+\begingroup {\thewoc: #1} \\
+\color{midnightblue}
+}{\hspace*{\textwidth}\\\noindent\rule{0.5\textwidth}{0.4pt}\endgroup\\}
+
+\makeatletter
+% A modification of the kernel's \@dottedtocline,
+% suppressing the leaders (dots) and page number
+% A variation of Martin Scharrer's answer:
+% http://tex.stackexchange.com/a/10189
+\def\@nodottedtocline#1#2#3#4#5{%
+    \vskip \z@ \@plus.2\p@
+    {\leftskip #2\relax \rightskip \@tocrmarg \parfillskip -\rightskip
+     \parindent #2\relax\@afterindenttrue
+     \interlinepenalty\@M
+     \leavevmode
+     \@tempdima #3\relax
+     \advance\leftskip \@tempdima \null\nobreak\hskip -\leftskip
+     {#4}\hfill\null\par}}
+\newcommand*\l@heading{\@nodottedtocline{0}{0em}{0em}}
+\makeatother
+
+\newcommand\headinginfo[1]{%
+  \addcontentsline{key-\thecherrychapter}{heading}{{#1}}%
+  \addtocontents{key-\thecherrychapter}{\vspace{5pt}}}
+
+
+%% expert approach to keywords
+\newcommand\keyword[1]{%
+  \noindent%
+  {#1}%
+  \phantomsection% comment out if hyperref is not used
+  \addcontentsline{key-\thecherrychapter}{figure}{#1}
+}
+\makeatletter
+\newcommand{\listofkeywordsbasic}{%
+  \@starttocorig{key-\thecherrychapter}
+}
+\makeatother
+\newcommand\listkeywordsname{KEYWORDS}
+\newcommand\listofkeywords{%
+  \phantomsection{\listkeywordsname}\listofkeywordsbasic
+  
+}
+
+
+%\newcommand{\sortitem}[1]{%
+%  \DTLnewrow{list}% Create a new entry
+%  \DTLnewdbentry{list}{description}{#1}% Add entry as description
+%}
+%\newenvironment{vocabolario}{%
+%  \DTLifdbexists{list}{\DTLcleardb{list}}{\DTLnewdb{list}}% Create new/discard old %list
+%}{%
+%  \DTLsort{description}{list}% Sort list
+%  \begin{itemize}%
+%    \DTLforeach*{list}{\theDesc=description}{%
+%      \item \theDesc}% Print each item
+%  \end{itemize}%
+%}
+%%%
+
+\newcommand{\sortitem}[3][]{%
+\DTLnewrow{frit}% Create a new entry
+  \DTLnewdbentry{frit}{description}{#2-#3. Esempio in francese}% Add entry as description
+\DTLnewrow{itfr}% Create a new entry
+  \DTLnewdbentry{itfr}{description}{#3-#2. Examples: #1.}% Add entry as description
+}
+
+\newenvironment{vocabolario}{%
+\DTLifdbexists{frit}{\DTLcleardb{frit}}{\DTLnewdb{frit}}% Create new/discard old list
+\DTLifdbexists{itfr}{\DTLcleardb{itfr}}{\DTLnewdb{itfr}}
+}{%
+Fr-It:
+  \DTLsort{description}{frit}% Sort list
+  \begin{itemize}%
+    \DTLforeach*{frit}{\theDesc=description}{%
+      \item \theDesc}% Print each item
+  \end{itemize}%
+\noindent\rule{2cm}{0.4pt}
+It-Fr:
+\DTLsort{description}{itfr}% Sort list
+  \begin{itemize}%
+    \DTLforeach*{itfr}{\theDesc=description}{%
+      \item \theDesc}% Print each item
+  \end{itemize}%
+}
