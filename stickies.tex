@@ -11,7 +11,11 @@ type:auto/vfat... option:rw/users/exec/umask=000 dump pass)
 mactel: bless .... boot.efi: boot to grub
 grub-install: work with mkfs.msdos, on hfsplus install only /EFI/debian/System/Library/CoreServices/boot.efi
 \verb=sudo grub-efi=/mnt/... --directory/target=i386-efi=
-
+\item Mac Bootloader directory:%\tbv{}
+    \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+    /efi/boot/boot.iso
+    /efi/boot/boot.efi
+\end{lstlisting}
 \end{itemize}
 
 \subsection{Latex}
@@ -129,6 +133,11 @@ console from debian insaller: dd, mount (insmod?? vfat mounting to /mnt)
 \subsection{Debian initial configuration}
 
 \begin{itemize}
+\item apt-preferences. The APT preferences file /etc/apt/preferences can be used to control which versions of packages will be selected for installation. FICHIERS
+/etc/apt/preferences
+Version preferences file. This is where you would specify "pinning", i.e. a preference to get certain packages from a separate source or from a different version of a distribution. Configuration Item: Dir::Etc::Preferences.
+/etc/apt/preferences.d/
+File fragments for the version preferences. Configuration Item: Dir::Etc::PreferencesParts.
 \item git backup init (\keyword{using ssh keys})
 \begin{lstlisting}
 git init --separate-git-dir??\\
@@ -142,36 +151,24 @@ git checkout origin/master -- path-to-file\\
 \end{itemize}
 
 \subsection{Debian}
-
 \begin{itemize}
-
-\item Build linux kernel
-
+\item Build linux kernel.
 Needed tools: kernel-package fakeroot/apt build-dep linux
 At times the Linux kernel and the toolchain versions might be out of sync, resulting in lots of strange build failures. In that case, it would be a good idea to use a Debian stable chroot to do the building.
-
 Getting the Linux git source: Clone Linus's version (HEAD)
 \begin{lstlisting}
 git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 \end{lstlisting}
-
 Build your Linux kernel
-
 Copy a valid configuration, for example, the configuration of the running Linux kernel/use currently loaded modules:
-
 \begin{lstlisting}
 cp /boot/config-$(uname -r) .config
 echo CONFIG_LOCALVERSION_AUTO=y >> .config
 \end{lstlisting}
-
 Configure the Linux kernel:
-
 (\verb=yes "" | make oldconfig=)\verb=make oldconfig=
-
 (''make localmodconfig'' Create a config based on current config and loaded modules (lsmod). Disables any module option that is not needed for the loadedmodules. (First, boot up a default distribution kernel and run \verb=/usr/bin/modprobed-db store= periodically, or every time you connect some new piece of hardware. Then, run \verb=sudo /usr/bin/modprobed-db recall=))
-
 Build the Linux kernel:
-
 \begin{lstlisting}
 # Detect the amount of CPU cores you have
 jobs=$(nproc --all)
@@ -180,79 +177,56 @@ fakeroot=$(grep -q fakeroot scripts/package/Makefile || echo fakeroot)
 # Build Debian binary packages of the Linux kernel version
 $fakeroot make -j$jobs bindeb-pkg
 \end{lstlisting}
-
 Install the newly created Linux kernel:
 \begin{lstlisting}
 apt install ../linux-2.6.25-rc6_2.6.25-rc6-2_amd64.deb
 \end{lstlisting}
-
 Reboot under newly built Linux kernel.
-
 \item Systemd
-
 The most notable distribution using systemd is Fedora. Though it is used by many others. Additionally, with Debian having chosen to go with systemd over upstart, it will become the defacto upstart system for most distributions (ubuntu has already announced they will be dropping upstart for systemd).
-
 List services:
 \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
 systemctl list-unit-files
 \end{lstlisting}
-
 Start service:
 \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
 systemctl start {SERVICENAME}
 \end{lstlisting}
-
 Stop service:
 \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
 systemctl stop {SERVICENAME}
 \end{lstlisting}
-
 Enable service:
 \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
 systemctl enable {SERVICENAME}
 \end{lstlisting}
-
 Disable service:
 \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
 systemctl disable {SERVICENAME}
 \end{lstlisting}
-
 \item Networking-The modern network configuration without GUI
-
 Sous systemd, le réseau peut aussi être configuré dans \verb=/etc/systemd/network/=. Voir : systemd-resolved(8), resolved.conf(5), et systemd-networkd(8).
-
 This allows the modern network configuration without GUI.
-
 A DHCP client configuration can be set up by creating "/etc/systemd/network/dhcp.network". E.g.:
 \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
-
 [Match]
 Name=en*
-
 [Network]
 DHCP=yes
 \end{lstlisting}
-
 A static network configuration can be set up by creating "/etc/systemd/network/static.network". E.g.:
 \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
-
 [Match]
 Name=en*
-
 [Network]
 Address=192.168.0.15/24
 Gateway=192.168.0.1
 \end{lstlisting}
-
 \item Networking-NetworkManager
-
 \end{itemize}
-
 \subsection{e-facilities}
-
 \begin{itemize}
 \item Unipisa network configuration (\keyword{wpa2-enterprise}).
-
 802.1x su wireless
 Istruzioni autenticazione 802.1x
     Network Name/SSID: eduroam, UniPisa, Teaching
@@ -260,11 +234,8 @@ Istruzioni autenticazione 802.1x
     Encryption Type: AES
     Authentication method: PEAP or EAP-TTLS
     Authentication protocol: MSCHAP / Sub authentication method: EAP-MSCHAP V2 or PAP
-    
 \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
-
 nmcli connection edit UniPisa
-
 ===============================================================================
                  Informations de profil de connexion (UniPisa)
 ===============================================================================
