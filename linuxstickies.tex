@@ -1,6 +1,6 @@
-\section{works in progress}
+\chapter{low level and bootin}
 
-\subsection{Boot process}
+\section{Boot process}
 
 \begin{itemize}
 \item (macbook32bit: 1,1).
@@ -16,110 +16,27 @@ grub-install: work with mkfs.msdos, on hfsplus install only /EFI/debian/System/L
     /efi/boot/boot.iso
     /efi/boot/boot.efi
 \end{lstlisting}
+\verb=https://astrofloyd.wordpress.com/2014/01/14/boot-linux-from-usb-flash-drive-on-macbook/=
+\item Problemi booting into installer: e attendere molto prima rinunciare.
 \end{itemize}
 
-\subsection{Latex}
+\section{Linux kernel}
+
+\subsection{RAM and CPU}
 
 \begin{itemize}
-    \item Beamer: partintoc-hyperlink
-    \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
-    \makeatletter
-\AtBeginPart{%
-  \addtocontents{toc}{\protect\beamer@partintoc{\the\c@part}{\beamer@partnameshort}{\the\c@page}}%
-}
-%% number, shortname, page.
-\providecommand\beamer@partintoc[3]{%
-  \ifnum\c@tocdepth=-1\relax
-    % requesting onlyparts.
-    \makebox[6em]{Part #1:} \textcolor{green!30!blue}{\hyperlink{#2}{#2}}
-    \par
-  \fi
-}
-\define@key{beamertoc}{onlyparts}[]{%
-  \c@tocdepth=-1\relax
-}
-\makeatother%
-
-\newcommand{\nameofthepart}{}
-\newcommand{\nupart}[1]%
-    {   \part{#1}%
-        \renewcommand{\nameofthepart}{#1}%
-        \frame{\partpage \hypertarget{\nameofthepart}{}}%
-    }
-    \end{lstlisting}
-    \item (Beamer) workout with insertframenumber. \verb=\insertframenumber= is expanded at \verb=\listofkeywords= page.
-\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
-\newcounter{cherrykey}%conta le keyword totali per auto ref
-\newcounter{cherrysublist}% conta le key prima di keywordlist
-\newcommand\headinginfo[1]{%
-  \addcontentsline{key-\thecherrysublist}{heading}{{#1}}%
-  \addtocontents{key-\thecherrysublist}{\vspace{5pt}}}
-%% expert approach to keywords
- \makeatletter
-\newcommand\keyword[2][target-\thecherrykey]{%
-\addtocounter{cherrykey}{1}
-  \noindent%
-  {#2}%
-  \phantomsection% comment out if hyperref is not used
-  \linkdest{#1}
-\addcontentsline{key-\thecherrysublist}{subsubsection}{\textbullet\protect\hyperlink{#1}{#2}}
-}
-  \makeatother
-  
-\makeatletter
-\newcommand{\listofkeywordsbasic}{%
-\addtocounter{cherrysublist}{1}
-  \@starttocorig{key-\thecherrysublist}
-}
-\makeatother
-\newcommand\listkeywordsname{KEYWORDS}
-\newcommand\listofkeywords{%
-  \subsubsection{\listkeywordsname}\listofkeywordsbasic
-}
-\end{lstlisting}
-\end{itemize}
-\subsection{Octave}
-
-\begin{itemize}
-\item (Octave) Multi hist plot. How fill works? How work on two matrices instead of two vectors?
-\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
-function [h,ys,xs] = complexhist (M)
-#(A,B)
-graphics_toolkit("gnuplot")
-#A=M(1,:)
-size(M)(2)
-hold on; 
-
-for i=1:5#size(M)(2)
-[y(:,i) x(:,i)]=hist(M(:,i),10);
-tt1y=size(y)
-tt2x=size(x)
-[ys(:,i) xs(:,i)]=stairs(y(:,i), x(:,i));
-tttxs=size(xs)
-tttys=size(ys)
-xsa(:,i)=[xs(1,i); xs(:,i); xs(end,i)];
-ysa(:,i)= [0; ys(:,i); 0];
-h(i)=fill(xsa(:,i),ysa(:,i),"red")
-set(h(i),'facealpha',0.5);
-endfor
-size(ysa)
-size(xsa)
-size(h)
-clf
-hold off;
-endfunction
-\end{lstlisting}
-
+    \item Skip on sync for hibernate to disk on debian after 20/01/2020 upgrade
 \end{itemize}
 
+\subsection{video and gpu}
 
-\section{Environment}
+\subsection{audio}
 
-\subsection{Octave}
+\subsection{Mouse and Keyboard}
 
-\subsection{Sage}
+\chapter{Debian Installation and Setup}
 
-\subsection{Debian installation}
+\section{Debian installation}
 
 \begin{itemize}
 \item Boot fom grub console cloning iso installer to from harddisk to USB pen
@@ -130,7 +47,9 @@ console from debian insaller: dd, mount (insmod?? vfat mounting to /mnt)
 
 \end{itemize}
 
-\subsection{Debian initial configuration}
+\section{Debian configuration}
+
+\subsection{APT and pkgs}
 
 \begin{itemize}
 \item apt-preferences. The APT preferences file /etc/apt/preferences can be used to control which versions of packages will be selected for installation. FICHIERS
@@ -138,16 +57,7 @@ console from debian insaller: dd, mount (insmod?? vfat mounting to /mnt)
 Version preferences file. This is where you would specify "pinning", i.e. a preference to get certain packages from a separate source or from a different version of a distribution. Configuration Item: Dir::Etc::Preferences.
 /etc/apt/preferences.d/
 File fragments for the version preferences. Configuration Item: Dir::Etc::PreferencesParts.
-\item git backup init (\keyword{using ssh keys})
-\begin{lstlisting}
-git init --separate-git-dir??\\
-git --git-dir=/home/user/backup-root/.git/ --work-tree=/ init\\
-git add remote origin url.git\\
-(add ssh keys on github: xclip -sel clip <~/.ssh/id_rsa.pub)\\
-git checkout origin/master -- path-to-file\\
-\end{lstlisting}
 \item apt install keychain: key manager for OpenSSH. It check for ssh-agent running and save sshagent envirnment variables to \verb=~/.keychain/\$\{HOSTNAME\}-sh=
-
 \end{itemize}
 
 \subsection{Debian}
@@ -485,9 +395,99 @@ sudo dhclient wlan0 -v
 \end{verbatim}
 \end{itemize}
 
-\section{\TeX ''environments''}
+\section{Linux dev tools}
 
-\subsection{\LaTeX}
+\subsection{Common Commands}
+
+\begin{itemize}
+    \item Apply patch inside patched dir:
+    \begin{verbatim}
+        patch -p1 < patch-path
+        patch -R -p1 < patch-path
+    \end{verbatim}
+    \item \keyword{rfkill - tool for enabling and disabling wireless devices}: \verb=sudo rfkill unblock all=
+    \item \keyword{ip - show / manipulate routing, network devices, interfaces and tunnels}: \verb=ip link show=, 
+    \item system sunto: \verb=inxi -Fzx=
+\end{itemize}
+
+\subsection{wifi connection: nmcli}
+
+\subsection{git}
+
+\begin{itemize}
+\item git backup init (\keyword{using ssh keys})
+\begin{lstlisting}
+git init --separate-git-dir??\\
+git --git-dir=/home/user/backup-root/.git/ --work-tree=/ init\\
+git add remote origin url.git\\
+(add ssh keys on github: xclip -sel clip <~/.ssh/id_rsa.pub)\\
+git checkout origin/master -- path-to-file\\
+\end{lstlisting}
+\end{itemize}
+
+
+\chapter{Markup Languages}
+
+\section{Latex}
+
+\begin{itemize}
+    \item Beamer: partintoc-hyperlink
+    \begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+    \makeatletter
+\AtBeginPart{%
+  \addtocontents{toc}{\protect\beamer@partintoc{\the\c@part}{\beamer@partnameshort}{\the\c@page}}%
+}
+%% number, shortname, page.
+\providecommand\beamer@partintoc[3]{%
+  \ifnum\c@tocdepth=-1\relax
+    % requesting onlyparts.
+    \makebox[6em]{Part #1:} \textcolor{green!30!blue}{\hyperlink{#2}{#2}}
+    \par
+  \fi
+}
+\define@key{beamertoc}{onlyparts}[]{%
+  \c@tocdepth=-1\relax
+}
+\makeatother%
+
+\newcommand{\nameofthepart}{}
+\newcommand{\nupart}[1]%
+    {   \part{#1}%
+        \renewcommand{\nameofthepart}{#1}%
+        \frame{\partpage \hypertarget{\nameofthepart}{}}%
+    }
+    \end{lstlisting}
+    \item (Beamer) workout with insertframenumber. \verb=\insertframenumber= is expanded at \verb=\listofkeywords= page.
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+\newcounter{cherrykey}%conta le keyword totali per auto ref
+\newcounter{cherrysublist}% conta le key prima di keywordlist
+\newcommand\headinginfo[1]{%
+  \addcontentsline{key-\thecherrysublist}{heading}{{#1}}%
+  \addtocontents{key-\thecherrysublist}{\vspace{5pt}}}
+%% expert approach to keywords
+ \makeatletter
+\newcommand\keyword[2][target-\thecherrykey]{%
+\addtocounter{cherrykey}{1}
+  \noindent%
+  {#2}%
+  \phantomsection% comment out if hyperref is not used
+  \linkdest{#1}
+\addcontentsline{key-\thecherrysublist}{subsubsection}{\textbullet\protect\hyperlink{#1}{#2}}
+}
+  \makeatother
+  
+\makeatletter
+\newcommand{\listofkeywordsbasic}{%
+\addtocounter{cherrysublist}{1}
+  \@starttocorig{key-\thecherrysublist}
+}
+\makeatother
+\newcommand\listkeywordsname{KEYWORDS}
+\newcommand\listofkeywords{%
+  \subsubsection{\listkeywordsname}\listofkeywordsbasic
+}
+\end{lstlisting}
+\end{itemize}
 
 \begin{itemize}
 
@@ -581,7 +581,7 @@ P.S. If you need to put them in-line, you can put them in the \verb=\verb=== env
 
 \end{itemize}
 
-\subsection{TiKz(PGFplots) world}
+\section{TiKz(PGFplots) world}
 
 \begin{itemize}
 \item node shape: circle, rectangle, coordinate.
@@ -638,7 +638,7 @@ https://tex.stackexchange.com/questions/269386/how-to-add-an-extra-tick-without-
 \testwords{Now good}% Gives (Now)(good)
 \end{lstlisting}
 
-\subsection{LUA}
+\section{LUA}
 
 \begingroup
 \nocite{*}
@@ -1107,12 +1107,48 @@ For those that already know something about coroutines, it is important to clari
 Some people call asymmetric coroutine semi-coroutines (because they are not symmetrical, they are not really co). However, other people use the same term semi-coroutine to denote a restricted implementation of coroutines, where a coroutine can only suspend its execution when it is not inside any auxiliary function, that is, when it has no pending calls in its control stack. In other words, only the main body of such semi-coroutines can yield. A generator in Python is an example of this meaning of semi-coroutines.
 
 Unlike the difference between symmetric and asymmetric coroutines, the difference between coroutines and generators (as presented in Python) is a deep one; generators are simply not powerful enough to implement several interesting constructions that we can write with true coroutines. Lua offers true, asymmetric coroutines. Those that prefer symmetric coroutines can implement them on top of the asymmetric facilities of Lua. It is an easy task. (Basically, each transfer does a yield followed by a resume.)
+\end{itemize}
 
+\chapter{Calculus tools}
 
+\section{Octave}
+
+\begin{itemize}
+\item (Octave) Multi hist plot. How fill works? How work on two matrices instead of two vectors?
+\begin{lstlisting}[basicstyle=\small\ttfamily,columns=flexible,breaklines=true]
+function [h,ys,xs] = complexhist (M)
+#(A,B)
+graphics_toolkit("gnuplot")
+#A=M(1,:)
+size(M)(2)
+hold on; 
+
+for i=1:5#size(M)(2)
+[y(:,i) x(:,i)]=hist(M(:,i),10);
+tt1y=size(y)
+tt2x=size(x)
+[ys(:,i) xs(:,i)]=stairs(y(:,i), x(:,i));
+tttxs=size(xs)
+tttys=size(ys)
+xsa(:,i)=[xs(1,i); xs(:,i); xs(end,i)];
+ysa(:,i)= [0; ys(:,i); 0];
+h(i)=fill(xsa(:,i),ysa(:,i),"red")
+set(h(i),'facealpha',0.5);
+endfor
+size(ysa)
+size(xsa)
+size(h)
+clf
+hold off;
+endfunction
+\end{lstlisting}
 
 \end{itemize}
 
-\section{multimedia tools}
+\section{Sage}
+
+
+\chapter{multimedia tools}
 
 \subsection{ffmpeg}
 
